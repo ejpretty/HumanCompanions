@@ -26,12 +26,18 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.network.PacketDistributor;
@@ -63,7 +69,15 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
     private static final EntityDataAccessor<Integer> PATROL_RADIUS = SynchedEntityData.defineId(AbstractHumanCompanionEntity.class,
             EntityDataSerializers.INT);
 
+    protected AbstractHumanCompanionEntity companion;
+
+    public static final MobCategory CATEGORY = MobCategory.CREATURE;
     public SimpleContainer inventory = new SimpleContainer(27);
+
+    public boolean canPickUpLoot;
+
+
+
     public EquipmentSlot[] armorTypes = new EquipmentSlot[]{EquipmentSlot.FEET, EquipmentSlot.LEGS,
             EquipmentSlot.CHEST, EquipmentSlot.HEAD};
     public List<NearestAttackableTargetGoal> alertMobGoals = new ArrayList<>();
@@ -75,7 +89,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
     public AbstractHumanCompanionEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
         this.setTame(false);
-//        this.setCanPickUpLoot(true);
+        this.setCanPickUpLoot(true);
         ((GroundPathNavigation)this.getNavigation()).setCanOpenDoors(true);
         this.getNavigation().setCanFloat(true);
         for (int i = 0; i < CompanionData.alertMobs.length; i++) {
@@ -88,14 +102,15 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(0, new EatGoal(this));
+        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.OAK_LOG, this, 2.0D, 50));
+        this.goalSelector.addGoal(1, new FloatGoal(this));
+        this.goalSelector.addGoal(1, new EatGoal(this));
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
         this.goalSelector.addGoal(2, new AvoidCreeperGoal(this, Creeper.class, 10.0F, 1.5D, 1.5D));
         this.goalSelector.addGoal(3, new MoveBackToGuardGoal(this));
-        this.goalSelector.addGoal(3, new CustomFollowOwnerGoal(this, 1.3D, 8.0F, 2.5F, false));
-        this.goalSelector.addGoal(5, new CustomWaterAvoidingRandomStrollGoal(this, 1.0D));
-        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
+//        this.goalSelector.addGoal(3, new CustomFollowOwnerGoal(this, 1.3D, 8.0F, 2.5F, false));
+//        this.goalSelector.addGoal(5, new CustomWaterAvoidingRandomStrollGoal(this, 1.0D));
+//        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(8, new OpenDoorGoal(this, true));
         this.goalSelector.addGoal(9, new LowHealthGoal(this));
@@ -160,6 +175,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         tag.putBoolean("Eating", this.isEating());
         tag.putBoolean("Alert", this.isAlert());
         tag.putBoolean("Hunting", this.isHunting());
+        tag.putBoolean("CanPickUpLoot", this.canPickUpLoot());
         tag.putBoolean("Patrolling", this.isPatrolling());
         tag.putBoolean("Following", this.isFollowing());
         tag.putBoolean("Guarding", this.isGuarding());
@@ -170,12 +186,23 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         }
     }
 
+    public boolean canPickUpLoot() {
+        return true;
+    }
+
+    public void setCanPickUpLoot(boolean pCanPickup) {
+        this.canPickUpLoot = pCanPickup;
+    }
+
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         this.setCompanionSkin(tag.getInt("skin"));
         this.setEating(tag.getBoolean("Eating"));
         this.setAlert(tag.getBoolean("Alert"));
         this.setHunting(tag.getBoolean("Hunting"));
+        if (tag.contains("CanPickUpLoot", 1)) {
+            this.setCanPickUpLoot(tag.getBoolean("CanPickUpLoot"));
+        }
         this.setPatrolling(tag.getBoolean("Patrolling"));
         this.setFollowing(tag.getBoolean("Following"));
         this.setGuarding(tag.getBoolean("Guarding"));
@@ -274,6 +301,8 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         player.initMenu(player.containerMenu);
         MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(player, player.containerMenu));
     }
+
+
 
     public void checkArmor() {
         ItemStack head = this.getItemBySlot(EquipmentSlot.HEAD);

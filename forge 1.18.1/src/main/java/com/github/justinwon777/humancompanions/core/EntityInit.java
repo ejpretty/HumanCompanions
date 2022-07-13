@@ -18,17 +18,17 @@ public final class EntityInit {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, HumanCompanions.MOD_ID);
 
     public static final RegistryObject<EntityType<Knight>> Knight =
-            ENTITIES.register("knight", () -> EntityType.Builder.of(Knight::new, MobCategory.AMBIENT)
+            ENTITIES.register("knight", () -> EntityType.Builder.of(Knight::new, MobCategory.CREATURE)
                     .sized(0.6F, 1.8F)
                     .build(new ResourceLocation(HumanCompanions.MOD_ID, "knight").toString()));
 
     public static final RegistryObject<EntityType<Archer>> Archer =
-            ENTITIES.register("archer", () -> EntityType.Builder.of(Archer::new, MobCategory.AMBIENT)
+            ENTITIES.register("archer", () -> EntityType.Builder.of(Archer::new, MobCategory.CREATURE)
                     .sized(0.6F, 1.8F)
                     .build(new ResourceLocation(HumanCompanions.MOD_ID, "archer").toString()));
 
     public static final RegistryObject<EntityType<Arbalist>> Arbalist =
-            ENTITIES.register("arbalist", () -> EntityType.Builder.of(Arbalist::new, MobCategory.AMBIENT)
+            ENTITIES.register("arbalist", () -> EntityType.Builder.of(Arbalist::new, MobCategory.CREATURE)
                     .sized(0.6F, 1.8F)
                     .build(new ResourceLocation(HumanCompanions.MOD_ID, "arbalist").toString()));
 }
