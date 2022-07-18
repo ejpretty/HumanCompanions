@@ -2,11 +2,14 @@ package com.github.justinwon777.humancompanions.entity.ai;
 
 import com.github.justinwon777.humancompanions.container.CompanionContainer;
 import com.github.justinwon777.humancompanions.entity.AbstractHumanCompanionEntity;
+import com.github.justinwon777.humancompanions.entity.CompanionData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
@@ -27,6 +30,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraft.world.entity.player.Player;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -40,8 +44,8 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     public Player player;
 //    protected final PathfinderMob mob;
 //    private final ItemStackHandler itemHandler = createHandler();
-
-
+//
+//
 //    private final LazyOptional<IItemHandler> handler = LazyOptional.of(() -> itemHandler);
 
 //    protected final TamableAnimal mob;
@@ -51,6 +55,9 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 
     private int ticksSinceReachedGoal;
     private static final int WAIT_AFTER_BLOCK_FOUND = 20;
+    public int blocksDestroyed;
+
+    public SimpleContainer inventory;
 
 
     //    public RemoveBlockGoal(Block p_25840_, AbstractPlayerCompanionEntity companion, double p_25842_, int p_25843_) {
@@ -59,10 +66,13 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 //        this.removerMob = companion;
 //    }
 //        ItemStack stack = this.itemHandler.getStackInSlot(i);
-    public CustomRemoveBlockGoal(Block pBlockToRemove, PathfinderMob p_34344_, double pSpeedModifier, int pSearchRange) {
-        super(p_34344_, pSpeedModifier, 24, pSearchRange);
+    public CustomRemoveBlockGoal(Block pBlockToRemove, PathfinderMob p_34344_, double pSpeedModifier, int pSearchRange, int blocksDestroyed, SimpleContainer mobInventory, Player player) {
+        super(p_34344_, pSpeedModifier, 48, pSearchRange);
         this.blockToRemove = pBlockToRemove;
         this.removerMob = p_34344_;
+        this.blocksDestroyed = blocksDestroyed;
+        this.inventory = mobInventory;
+//        this.player = player;
     }
 
 //    public boolean iterateBlocks(Player player) {
@@ -85,12 +95,17 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             --this.nextStartTick;
             return false;
         } else if (this.tryFindBlock()) {
-            this.nextStartTick = reducedTickDelay(10);
+            this.nextStartTick = reducedTickDelay(1);
             return true;
         } else {
             this.nextStartTick = this.nextStartTick(this.mob);
             return false;
         }
+    }
+
+    @Override
+    public boolean requiresUpdateEveryTick() {
+        return super.requiresUpdateEveryTick();
     }
 
     private boolean tryFindBlock() {
@@ -99,6 +114,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     public BlockPos getMoveToTarget() {
 
         blockActualPos = this.blockPos;
+
 
         Vec3 southPos = new Vec3(blockActualPos.south().getX(), blockActualPos.south().getY(), blockActualPos.south().getZ());
         Vec3 eastPos = new Vec3(blockActualPos.east().getX(), blockActualPos.east().getY(), blockActualPos.east().getZ());
@@ -135,7 +151,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     }
 
     public double acceptedDistance() {
-        return 1D;
+        return 1.14D;
     }
     protected boolean isReachedTarget() {
         return this.reachedTarget;
@@ -148,10 +164,13 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
      */
     public void stop() {
         super.stop();
+//        ItemStack woodFinished = new ItemStack(Blocks.ACACIA_LOG, (10));
+//        if (player.getInventory().contains(woodFinished)) {
+//            stop();}
         this.removerMob.fallDistance = 1.0F;
     }
     public boolean canContinueToUse() {
-        return this.tryTicks >= -this.maxStayTicks && this.tryTicks <= 1200 && this.isValidTarget(this.mob.level, this.blockPos);
+        return this.tryTicks >= -this.maxStayTicks && this.tryTicks <= 100 && this.isValidTarget(this.mob.level, this.blockPos);
     }
 
     /**
@@ -176,13 +195,13 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
      */
     public void tick() {
 //        super.tick();
-        BlockPos blockpos = this.getMoveToTarget();
-        if (!blockpos.closerThan(this.mob.position(), this.acceptedDistance())) {
+        BlockPos blockPos = this.getMoveToTarget();
+        if (!blockPos.closerThan(this.mob.position(), this.acceptedDistance())) {
             this.reachedTarget = false;
             ++this.tryTicks;
             if (this.shouldRecalculatePath()) {
                 System.out.print("is still going");
-                this.mob.getNavigation().moveTo((double)((float)blockpos.getX()), (double)blockpos.getY(), (double)((float)blockpos.getZ()), this.speedModifier);
+                this.mob.getNavigation().moveTo((double)((float)blockPos.getX()) - 0.5D, (double)blockPos.getY(), (double)((float)blockPos.getZ()) - 0.5D, this.speedModifier);
                 System.out.print("renavigate");
             }
         } else {
@@ -195,45 +214,97 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 
 
         Level level = this.removerMob.level;
-//        blockpos = this.removerMob.blockPosition();
-//        BlockPos blockpos1 = this.getPosWithBlock(blockpos, level);
-//        Random random = this.removerMob.getRandom();
-        if (this.isReachedTarget() && blockpos != null) {
-//            if (this.ticksSinceReachedGoal > 0) {
+//        BlockPos blockpos1 = this.removerMob.blockPosition();
+//        blockpos = this.getPosWithBlock(blockpos1, level);
+        Random random = this.removerMob.getRandom();
+
+        if (this.isReachedTarget() && blockPos != null) {
+            if (this.ticksSinceReachedGoal > 0) {
 //                Vec3 vec3 = this.removerMob.getDeltaMovement();
 //                this.removerMob.setDeltaMovement(vec3.x, 0.3D, vec3.z);
-//                if (!level.isClientSide) {
-//                    double d0 = 0.08D;
-//                    ((ServerLevel)level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.EGG)), (double)blockpos1.getX() + 0.5D, (double)blockpos1.getY() + 0.7D, (double)blockpos1.getZ() + 0.5D, 3, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, (double)0.15F);
-//                }
-//            }
+                if (!level.isClientSide) {
+                    double d0 = 0.08D;
+                    ((ServerLevel)level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.EGG)), (double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.7D, (double)blockPos.getZ() + 0.5D, 3, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, (double)0.15F);
+                }
+            }
 
-//            if (this.ticksSinceReachedGoal % 2 == 0) {
+            if (this.ticksSinceReachedGoal % 2 == 0) {
 //                Vec3 vec31 = this.removerMob.getDeltaMovement();
 //                this.removerMob.setDeltaMovement(vec31.x, -0.3D, vec31.z);
-//                if (this.ticksSinceReachedGoal % 6 == 0) {
-//                    this.playDestroyProgressSound(level, this.blockPos);
-//                }
-//            }
+                if (this.ticksSinceReachedGoal % 6 == 0) {
+                    this.playDestroyProgressSound(level, this.blockPos);
+                }
+            }
+
             //this is how long it takes to destroy the block once it has been reached
-            if (this.ticksSinceReachedGoal > 20) {
-                level.removeBlock(blockActualPos, true);}
-//                if (!level.isClientSide) {
-//                    for(int i = 0; i < 20; ++i) {
-//                        double d3 = random.nextGaussian() * 0.02D;
-//                        double d1 = random.nextGaussian() * 0.02D;
-//                        double d2 = random.nextGaussian() * 0.02D;
-//                        ((ServerLevel)level).sendParticles(ParticleTypes.POOF, (double)blockpos1.getX() + 0.5D, (double)blockpos1.getY(), (double)blockpos1.getZ() + 0.5D, 1, d3, d1, d2, (double)0.15F);
-//                    }
+            if (this.ticksSinceReachedGoal > 50) {
+                level.removeBlock(blockActualPos, false);
+                /*blocksDestroyed++;
+                CompanionData.numberOfBlockDestroyed++;
+                CompanionData.numberOfBlockDestroyed--;*/
+
+                if(inventory != null)
+                {
+                    inventory.addItem(Items.ACACIA_LOG.getDefaultInstance());
+                    CompanionData.numberOfBlockDestroyed++;
+
+                    int numberofAcaciaLogsWithinCompanion = 0;
+
+                    for(int i = 0; i < player.getInventory().items.size(); i++)
+                    {
+                        if(player.getInventory().getItem(i).is(Items.ACACIA_LOG))
+                        {
+
+                        }
+                    }
+
+
+
+                    System.out.println(">>>>>>>>>>>>>");
+                    System.out.println(inventory.toString());
+                    System.out.println(">>>>>>>>>>>>>");
+                }
+                else
+                {
+                    System.out.println(">>>>>>>>>>>>> The inventory is NULL");
+                }
+
+
+
+//                if (this.inventory.isEmpty()) {
+//                 this.inventory.inserItem(1,1)); }
+//                for (int i = 0; i < 4; i++) {
+//                    ItemStack itemstackWood = ;
+//                    if(!itemstackWood.
+////                            .isEmpty()) {
 //
-//                    this.playBreakSound(level, blockpos1);
+//                        this.inventory.setItem(i, itemstack);
+//                    }
 //                }
-//            }
+
+//                }
+
+                if (level.getBlockState(blockActualPos.above()).isAir()) {
+                level.removeBlock(blockActualPos.above(), false);
+                blocksDestroyed++;
+                }
+                System.out.print("blocks destroyed" + blocksDestroyed);
+                }
+                if (!level.isClientSide) {
+                    for(int i = 0; i < 20; ++i) {
+                        double d3 = random.nextGaussian() * 0.02D;
+                        double d1 = random.nextGaussian() * 0.02D;
+                        double d2 = random.nextGaussian() * 0.02D;
+                        ((ServerLevel)level).sendParticles(ParticleTypes.POOF, (double)blockPos.getX() + 0.5D, (double)blockPos.getY(), (double)blockPos.getZ() + 0.5D, 1, d3, d1, d2, (double)0.15F);
+                    }
+                    this.playBreakSound(level, blockPos);
+                }
+            }
 
             ++this.ticksSinceReachedGoal;
         }
 
-    }
+
 
     @Nullable
     private BlockPos getPosWithBlock(BlockPos pPos, BlockGetter pLevel) {
@@ -260,7 +331,13 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
         if (chunkaccess == null) {
             return false;
         } else {
-            return chunkaccess.getBlockState(pPos).is(this.blockToRemove) && chunkaccess.getBlockState(pPos.above()).isAir() && chunkaccess.getBlockState(pPos.above(2)).isAir();
+            return chunkaccess.getBlockState(pPos).is(this.blockToRemove)
+                    && pPos.getY() > 69
+                    && chunkaccess.getBlockState(pPos.east()).isAir()
+                    && chunkaccess.getBlockState(pPos.west()).isAir()
+                    && chunkaccess.getBlockState(pPos.south()).isAir()
+                    && chunkaccess.getBlockState(pPos.north()).isAir();
+//            && chunkaccess.getBlockState(pPos.above()).isAir() && chunkaccess.getBlockState(pPos.above(2)).isAir();
         }
     }
 }

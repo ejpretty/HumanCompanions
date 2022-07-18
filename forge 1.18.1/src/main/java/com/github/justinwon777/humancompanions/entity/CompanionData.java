@@ -286,4 +286,8 @@ public class CompanionData {
     public static String[] lastNames = new String[] {
             "the Builder"
     };
+
+    public static int numberOfBlockDestroyed = 0;
 }
+
+

@@ -73,4 +73,6 @@ public class CompanionContainer extends AbstractContainerMenu {
     public int getRowCount() {
         return this.containerRows;
     }
+
+    public Container getContainer() { return container; }
 }

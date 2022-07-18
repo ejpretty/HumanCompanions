@@ -39,13 +39,18 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static java.beans.XMLDecoder.createHandler;
 
 public class AbstractHumanCompanionEntity extends TamableAnimal {
 
@@ -72,9 +77,15 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
     protected AbstractHumanCompanionEntity companion;
 
     public static final MobCategory CATEGORY = MobCategory.CREATURE;
-    public SimpleContainer inventory = new SimpleContainer(27);
+    public SimpleContainer inventory;
+
+//    private final ItemStackHandler itemHandler = createHandler();
+//
+//
+//    private final LazyOptional<IItemHandler> handler = LazyOptional.of(() -> itemHandler);
 
     public boolean canPickUpLoot;
+    public Player player;
 
 
 
@@ -88,6 +99,10 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
 
     public AbstractHumanCompanionEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
+
+        if(inventory == null)
+            inventory = new SimpleContainer(27);
+
         this.setTame(false);
         this.setCanPickUpLoot(true);
         ((GroundPathNavigation)this.getNavigation()).setCanOpenDoors(true);
@@ -102,7 +117,10 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.OAK_LOG, this, 2.0D, 50));
+        if(inventory == null)
+            inventory = new SimpleContainer(27);
+
+        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.ACACIA_LOG, this, 1.5D, 50, blocksDestroyed, this.inventory, this.player));
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(1, new EatGoal(this));
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
@@ -151,6 +169,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         setCustomName(new TextComponent(CompanionData.getRandomName()));
         setPatrolPos(this.blockPosition());
         setPatrolling(true);
+        setCanPickUpLoot(true);
         setPatrolRadius(15);
         patrolGoal = new PatrolGoal(this, 60, getPatrolRadius());
         moveBackGoal = new MoveBackToPatrolGoal(this, getPatrolRadius());
@@ -189,7 +208,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
     public boolean canPickUpLoot() {
         return true;
     }
-
+    public int blocksDestroyed = 0;
     public void setCanPickUpLoot(boolean pCanPickup) {
         this.canPickUpLoot = pCanPickup;
     }

@@ -1,5 +1,6 @@
 package com.github.justinwon777.humancompanions.core;
 
+import com.github.justinwon777.humancompanions.entity.CompanionData;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
