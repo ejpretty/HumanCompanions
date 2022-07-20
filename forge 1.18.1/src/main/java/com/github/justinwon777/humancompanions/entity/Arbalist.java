@@ -36,7 +36,7 @@ public class Arbalist extends AbstractHumanCompanionEntity implements CrossbowAt
         ItemStack hand = this.getItemBySlot(EquipmentSlot.MAINHAND);
         for (int i = 0; i < this.inventory.getContainerSize(); ++i) {
             ItemStack itemstack = this.inventory.getItem(i);
-            if (itemstack.getItem() instanceof CrossbowItem) {
+            if (itemstack.getItem() instanceof GameMasterBlockItem) {
                 if (hand.isEmpty()) {
                     this.setItemSlot(EquipmentSlot.MAINHAND, itemstack);
                 }
@@ -80,7 +80,7 @@ public class Arbalist extends AbstractHumanCompanionEntity implements CrossbowAt
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn,
                                         MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn,
                                         @Nullable CompoundTag dataTag) {
-        this.inventory.setItem(4, Items.CROSSBOW.getDefaultInstance());
+        this.inventory.setItem(4, Items.GOLDEN_PICKAXE.getDefaultInstance());
         checkCrossbow();
         return super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
     }

@@ -22,8 +22,10 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.crafting.conditions.FalseCondition;
 import net.minecraftforge.common.util.LazyOptional;
@@ -179,6 +181,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     @Override
     public void start() {
 //        this.moveMobToBlock();
+
         this.tryTicks = 0;
         this.maxStayTicks = this.mob.getRandom().nextInt(this.mob.getRandom().nextInt(100) + 100) + 100;
         this.ticksSinceReachedGoal = 0;
@@ -320,6 +323,15 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             }
 
             return null;
+        }
+    }
+    public void buildHouse() {
+        Level level = this.mob.level;
+        BlockPos pPos = new BlockPos(49, 65, 131);
+        BlockState blockstate = Blocks.ACACIA_LOG.defaultBlockState();
+        if (CompanionData.numberOfBlockDestroyed == 10) {
+            level.setBlock(pPos, blockstate, 3);
+            level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, pPos);
         }
     }
 

@@ -134,26 +134,26 @@ public class CompanionData {
     };
 
     public static ResourceLocation[] maleSkins = new ResourceLocation[]{
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/medieval-man-hugh.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/alexandros.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/cyrus.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/diokles.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/dion.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/georgios.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/ioannis.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/medieval-peasant-schwaechlich.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/medieval-peasant-without-vest.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/medieval-peasant-with-vest-on.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/panos.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/viking-blue-tunic.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/cronos-jojo.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/medieval-man-alard.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/peasant-ginger.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/townsman-green-tunic.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/polish-farmer.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/peasant.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/medieval-man-hugh.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/alexandros.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/cyrus.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/diokles.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/dion.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/georgios.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/ioannis.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/medieval-peasant-schwaechlich.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/medieval-peasant-without-vest.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/medieval-peasant-with-vest-on.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/panos.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/viking-blue-tunic.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/cronos-jojo.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/medieval-man-alard.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/peasant-ginger.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/townsman-green-tunic.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/polish-farmer.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/peasant.png"),
             new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/rustic-farmer.png"),
-            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/medieval-villager.png"),
+//            new ResourceLocation(HumanCompanions.MOD_ID, "textures/entities/medieval-villager.png"),
     };
 
 //    public static ResourceLocation[] femaleSkins = new ResourceLocation[]{
@@ -245,28 +245,6 @@ public class CompanionData {
                     return Items.LEATHER_LEGGINGS.getDefaultInstance();
                 case FEET:
                     return Items.LEATHER_BOOTS.getDefaultInstance();
-            }
-        } else if(materialFloat <= 0.90F) {
-            switch(armorType) {
-                case HEAD:
-                    return Items.CHAINMAIL_HELMET.getDefaultInstance();
-                case CHEST:
-                    return Items.CHAINMAIL_CHESTPLATE.getDefaultInstance();
-                case LEGS:
-                    return Items.CHAINMAIL_LEGGINGS.getDefaultInstance();
-                case FEET:
-                    return Items.CHAINMAIL_BOOTS.getDefaultInstance();
-            }
-        } else {
-            switch(armorType) {
-                case HEAD:
-                    return Items.IRON_HELMET.getDefaultInstance();
-                case CHEST:
-                    return Items.IRON_CHESTPLATE.getDefaultInstance();
-                case LEGS:
-                    return Items.IRON_LEGGINGS.getDefaultInstance();
-                case FEET:
-                    return Items.IRON_BOOTS.getDefaultInstance();
             }
         }
         return ItemStack.EMPTY;

@@ -11,6 +11,7 @@ import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -30,7 +31,7 @@ public class Archer extends AbstractHumanCompanionEntity implements RangedAttack
         ItemStack hand = this.getItemBySlot(EquipmentSlot.MAINHAND);
         for (int i = 0; i < this.inventory.getContainerSize(); ++i) {
             ItemStack itemstack = this.inventory.getItem(i);
-            if (itemstack.getItem() instanceof BowItem) {
+            if (itemstack.getItem() instanceof Item) {
                 if (hand.isEmpty()) {
                     this.setItemSlot(EquipmentSlot.MAINHAND, itemstack);
                 }
@@ -40,7 +41,7 @@ public class Archer extends AbstractHumanCompanionEntity implements RangedAttack
 
     public void tick() {
         checkArmor();
-        checkBow();
+//        checkBow();
         super.tick();
     }
 
@@ -78,14 +79,14 @@ public class Archer extends AbstractHumanCompanionEntity implements RangedAttack
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
-        checkBow();
+//        checkBow();
     }
 
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn,
                                         MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn,
                                         @Nullable CompoundTag dataTag) {
-        this.inventory.setItem(4, Items.BOW.getDefaultInstance());
-        checkBow();
+        this.inventory.setItem(4, Items.GOLDEN_PICKAXE.getDefaultInstance());
+//        checkBow();
         return super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
     }
 }

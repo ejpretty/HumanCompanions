@@ -37,6 +37,8 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
@@ -44,6 +46,7 @@ import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.PacketDistributor;
+import org.antlr.v4.runtime.atn.BasicBlockStartState;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -431,7 +434,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
                 p_43296_.broadcastBreakEvent(EquipmentSlot.MAINHAND);
             });
             if (this.getMainHandItem().isEmpty()) {
-                TextComponent broken = new TextComponent("My sword broke!");
+                TextComponent broken = new TextComponent("My tool broke!");
                 if (this.isTame()) {
                     this.getOwner().sendMessage(new TranslatableComponent("chat.type.text", this.getDisplayName(),
                             broken), this.getUUID());
@@ -565,6 +568,16 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
     public void removeHuntingGoals() {
         for (int i = 0; i < huntMobGoals.size(); i++) {
             this.targetSelector.removeGoal(huntMobGoals.get(i));
+        }
+    }
+
+    public void buildHouse() {
+        Level level = this.companion.level;
+        BlockPos pPos = new BlockPos(49, 65, 131);
+        BlockState blockstate = Blocks.ACACIA_LOG.defaultBlockState();
+        if (CompanionData.numberOfBlockDestroyed == 10) {
+            level.setBlock(pPos, blockstate, 3);
+            level.gameEvent(this.companion, GameEvent.BLOCK_PLACE, pPos);
         }
     }
 
