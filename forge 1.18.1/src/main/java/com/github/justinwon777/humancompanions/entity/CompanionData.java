@@ -264,8 +264,9 @@ public class CompanionData {
     public static String[] lastNames = new String[] {
             "the Builder"
     };
-
-    public static int numberOfBlockDestroyed = 0;
+    //Markers for quests starting/stopping
+    public static int numberOfBlockDestroyed = 9;
+    public static boolean questbegin = true;
 }
 
 

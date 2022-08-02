@@ -123,7 +123,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         if(inventory == null)
             inventory = new SimpleContainer(27);
 
-        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.ACACIA_LOG, this, 1.5D, 50, blocksDestroyed, this.inventory, this.player));
+        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.BIRCH_LOG, this, 1.5D, 10, blocksDestroyed, this.inventory, this.player));
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(1, new EatGoal(this));
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
@@ -269,7 +269,8 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
                     itemstack.shrink(1);
                     if (this.random.nextInt(tameIdx) == 0) {
                         this.tame(player);
-                        player.sendMessage(new TextComponent("Companion added"), this.getUUID());
+                        player.sendMessage(new TextComponent("I'm Bob, and I am here to help you build a house"), this.getUUID());
+                        CompanionData.questbegin = true;
                         setPatrolPos(null);
                         setPatrolling(false);
                         setFollowing(true);

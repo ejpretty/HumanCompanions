@@ -69,7 +69,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 //    }
 //        ItemStack stack = this.itemHandler.getStackInSlot(i);
     public CustomRemoveBlockGoal(Block pBlockToRemove, PathfinderMob p_34344_, double pSpeedModifier, int pSearchRange, int blocksDestroyed, SimpleContainer mobInventory, Player player) {
-        super(p_34344_, pSpeedModifier, 48, pSearchRange);
+        super(p_34344_, pSpeedModifier, 10, pSearchRange);
         this.blockToRemove = pBlockToRemove;
         this.removerMob = p_34344_;
         this.blocksDestroyed = blocksDestroyed;
@@ -90,20 +90,25 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 //        }
 //    }
 
-    public boolean canUse() {
-        if (!net.minecraftforge.common.ForgeHooks.canEntityDestroy(this.removerMob.level, this.blockPos, this.removerMob)) {
-            return false;
-        } else if (this.nextStartTick > 0) {
-            --this.nextStartTick;
-            return false;
-        } else if (this.tryFindBlock()) {
-            this.nextStartTick = reducedTickDelay(1);
-            return true;
-        } else {
-            this.nextStartTick = this.nextStartTick(this.mob);
-            return false;
-        }
-    }
+//    public boolean canUse() {
+//        if (CompanionData.numberOfBlockDestroyed <= 10) {
+//            return true;
+//            }
+////        } if (!net.minecraftforge.common.ForgeHooks.canEntityDestroy(this.removerMob.level, this.blockPos, this.removerMob)) {
+////            return false;
+////        } else if (this.nextStartTick > 0) {
+////            --this.nextStartTick;
+////            return false;
+////        } else if (this.getMoveToTarget()) {
+////            this.nextStartTick = reducedTickDelay(100);
+////            return true;
+////        } else {
+////            this.nextStartTick = this.nextStartTick(this.mob);
+////            return false;
+////        }
+//        return true;
+//    }
+
 
     @Override
     public boolean requiresUpdateEveryTick() {
@@ -153,7 +158,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     }
 
     public double acceptedDistance() {
-        return 1.14D;
+        return 1.5D;
     }
     protected boolean isReachedTarget() {
         return this.reachedTarget;
@@ -172,7 +177,12 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
         this.removerMob.fallDistance = 1.0F;
     }
     public boolean canContinueToUse() {
+        if (CompanionData.numberOfBlockDestroyed <= 10) {
+            return true;
+        }
         return this.tryTicks >= -this.maxStayTicks && this.tryTicks <= 100 && this.isValidTarget(this.mob.level, this.blockPos);
+
+
     }
 
     /**
@@ -204,7 +214,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             ++this.tryTicks;
             if (this.shouldRecalculatePath()) {
                 System.out.print("is still going");
-                this.mob.getNavigation().moveTo((double)((float)blockPos.getX()) - 0.5D, (double)blockPos.getY(), (double)((float)blockPos.getZ()) - 0.5D, this.speedModifier);
+                this.mob.getNavigation().moveTo((double)((float)blockPos.getX()), (double)blockPos.getY(), (double)((float)blockPos.getZ()), this.speedModifier);
                 System.out.print("renavigate");
             }
         } else {
@@ -242,38 +252,37 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             //this is how long it takes to destroy the block once it has been reached
             if (this.ticksSinceReachedGoal > 50) {
                 level.removeBlock(blockActualPos, false);
-                /*blocksDestroyed++;
                 CompanionData.numberOfBlockDestroyed++;
-                CompanionData.numberOfBlockDestroyed--;*/
-
-                if(inventory != null)
-                {
-                    inventory.addItem(Items.ACACIA_LOG.getDefaultInstance());
+                inventory.addItem(Items.ACACIA_LOG.getDefaultInstance());
+                if (!level.getBlockState(blockActualPos.above()).isAir()) {
+                    level.removeBlock(blockActualPos.above(), false);
                     CompanionData.numberOfBlockDestroyed++;
-
-                    int numberofAcaciaLogsWithinCompanion = 0;
-
-                    for(int i = 0; i < player.getInventory().items.size(); i++)
-                    {
-                        if(player.getInventory().getItem(i).is(Items.ACACIA_LOG))
-                        {
-
-                        }
-                    }
-
-
-
-                    System.out.println(">>>>>>>>>>>>>");
-                    System.out.println(inventory.toString());
-                    System.out.println(">>>>>>>>>>>>>");
+                    inventory.addItem(Items.ACACIA_LOG.getDefaultInstance());
                 }
-                else
-                {
-                    System.out.println(">>>>>>>>>>>>> The inventory is NULL");
-                }
-
-
-
+//                level.removeBlock(blockActualPos.above(), false);
+                System.out.print(CompanionData.numberOfBlockDestroyed);
+                System.out.println(">>>>>>>>>>>>>");
+                System.out.println(inventory.toString());
+                System.out.println(">>>>>>>>>>>>>");
+//                if(inventory != null)
+//                {
+//                    inventory.addItem(Items.BIRCH_LOG.getDefaultInstance());
+//                    int numberofAcaciaLogsWithinCompanion = 0;
+////                    for(int i = 0; i < player.getInventory().items.size(); i++)
+////                    {
+////                        if(player.getInventory().getItem(i).is(Items.ACACIA_LOG))
+////                        {
+////
+////                        }
+////                    }
+//                    System.out.println(">>>>>>>>>>>>>");
+//                    System.out.println(inventory.toString());
+//                    System.out.println(">>>>>>>>>>>>>");
+//                }
+//                else
+//                {
+//                    System.out.println(">>>>>>>>>>>>> The inventory is NULL");
+//                }
 //                if (this.inventory.isEmpty()) {
 //                 this.inventory.inserItem(1,1)); }
 //                for (int i = 0; i < 4; i++) {
@@ -284,14 +293,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 //                        this.inventory.setItem(i, itemstack);
 //                    }
 //                }
-
 //                }
-
-                if (level.getBlockState(blockActualPos.above()).isAir()) {
-                level.removeBlock(blockActualPos.above(), false);
-                blocksDestroyed++;
-                }
-                System.out.print("blocks destroyed" + blocksDestroyed);
                 }
                 if (!level.isClientSide) {
                     for(int i = 0; i < 20; ++i) {
@@ -303,11 +305,9 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                     this.playBreakSound(level, blockPos);
                 }
             }
-
+            buildHouse();
             ++this.ticksSinceReachedGoal;
         }
-
-
 
     @Nullable
     private BlockPos getPosWithBlock(BlockPos pPos, BlockGetter pLevel) {
@@ -327,10 +327,12 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     }
     public void buildHouse() {
         Level level = this.mob.level;
-        BlockPos pPos = new BlockPos(49, 65, 131);
-        BlockState blockstate = Blocks.ACACIA_LOG.defaultBlockState();
-        if (CompanionData.numberOfBlockDestroyed == 10) {
+        BlockPos pPos = new BlockPos(-907, 78, -522);
+        BlockState blockstate = Blocks.ACACIA_PLANKS.defaultBlockState();
+        if (CompanionData.numberOfBlockDestroyed > 10) {
+//            this.ticksSinceReachedGoal--;
             level.setBlock(pPos, blockstate, 3);
+//            this.ticksSinceReachedGoal--;
             level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, pPos);
         }
     }
