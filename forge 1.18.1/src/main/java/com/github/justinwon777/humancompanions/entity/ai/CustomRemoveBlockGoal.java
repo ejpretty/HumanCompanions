@@ -213,14 +213,19 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             this.reachedTarget = false;
             ++this.tryTicks;
             if (this.shouldRecalculatePath()) {
-                System.out.print("is still going");
+                System.out.println("is still going");
+                System.out.println("actual block pos" + blockActualPos);
+                System.out.println("target navigated blockPos" + blockPos);
+
                 this.mob.getNavigation().moveTo((double)((float)blockPos.getX()), (double)blockPos.getY(), (double)((float)blockPos.getZ()), this.speedModifier);
-                System.out.print("renavigate");
+                System.out.println("renavigate");
+//                this.mob.getNavigation().moveTo((double)((float)this.mob.position().x) +.5D, (double)((float)this.mob.position().y), (double)((float)this.mob.position().z) +.5D, this.speedModifier);
+
             }
         } else {
-            System.out.print("reached target");
-
+            System.out.println(this.mob.position());
             this.reachedTarget = true;
+            System.out.println("reached target");
             --this.tryTicks;
         }
 
@@ -233,8 +238,6 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 
         if (this.isReachedTarget() && blockPos != null) {
             if (this.ticksSinceReachedGoal > 0) {
-//                Vec3 vec3 = this.removerMob.getDeltaMovement();
-//                this.removerMob.setDeltaMovement(vec3.x, 0.3D, vec3.z);
                 if (!level.isClientSide) {
                     double d0 = 0.08D;
                     ((ServerLevel)level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.EGG)), (double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.7D, (double)blockPos.getZ() + 0.5D, 3, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, (double)0.15F);
@@ -242,24 +245,24 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             }
 
             if (this.ticksSinceReachedGoal % 2 == 0) {
-//                Vec3 vec31 = this.removerMob.getDeltaMovement();
-//                this.removerMob.setDeltaMovement(vec31.x, -0.3D, vec31.z);
                 if (this.ticksSinceReachedGoal % 6 == 0) {
                     this.playDestroyProgressSound(level, this.blockPos);
                 }
             }
 
             //this is how long it takes to destroy the block once it has been reached
-            if (this.ticksSinceReachedGoal > 50) {
+            //then removes the block at blockpos, then adds that same item to either a stack of existing or an empty slot
+            if (this.ticksSinceReachedGoal > 70) {
+
                 level.removeBlock(blockActualPos, false);
                 CompanionData.numberOfBlockDestroyed++;
-                inventory.addItem(Items.ACACIA_LOG.getDefaultInstance());
+                inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
                 if (!level.getBlockState(blockActualPos.above()).isAir()) {
                     level.removeBlock(blockActualPos.above(), false);
                     CompanionData.numberOfBlockDestroyed++;
-                    inventory.addItem(Items.ACACIA_LOG.getDefaultInstance());
+                    inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
                 }
-//                level.removeBlock(blockActualPos.above(), false);
+//
                 System.out.print(CompanionData.numberOfBlockDestroyed);
                 System.out.println(">>>>>>>>>>>>>");
                 System.out.println(inventory.toString());
@@ -306,6 +309,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                 }
             }
             buildHouse();
+            checkCompletedHouse();
             ++this.ticksSinceReachedGoal;
         }
 
@@ -328,7 +332,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     public void buildHouse() {
         Level level = this.mob.level;
         BlockPos pPos = new BlockPos(-907, 78, -522);
-        BlockState blockstate = Blocks.ACACIA_PLANKS.defaultBlockState();
+        BlockState blockstate = Blocks.BIRCH_PLANKS.defaultBlockState();
         if (CompanionData.numberOfBlockDestroyed > 10) {
 //            this.ticksSinceReachedGoal--;
             level.setBlock(pPos, blockstate, 3);
@@ -336,6 +340,17 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, pPos);
         }
     }
+
+    public void checkCompletedHouse() {
+        BlockPos firstBrick = new BlockPos(-897, 77, -522);
+        Level level = this.mob.level;
+        Block birchWood = Blocks.BIRCH_PLANKS;
+        if (level.getBlockState(firstBrick).is(birchWood)) {
+            System.out.println("First block complete!");
+        }
+    }
+
+
 
     /**
      * Return true to set given position as destination
