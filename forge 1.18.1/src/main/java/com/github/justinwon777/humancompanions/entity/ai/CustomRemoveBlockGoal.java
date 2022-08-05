@@ -1,19 +1,17 @@
 package com.github.justinwon777.humancompanions.entity.ai;
 
-import com.github.justinwon777.humancompanions.container.CompanionContainer;
-import com.github.justinwon777.humancompanions.entity.AbstractHumanCompanionEntity;
 import com.github.justinwon777.humancompanions.entity.CompanionData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
-import net.minecraft.world.entity.ai.goal.RemoveBlockGoal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
@@ -27,23 +25,21 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.crafting.conditions.FalseCondition;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import net.minecraft.world.entity.player.Player;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Random;
+import java.util.UUID;
 
-import static java.beans.XMLDecoder.createHandler;
+
 
 public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     protected final Block blockToRemove;
     private BlockPos blockActualPos;
-    public Player player;
+    @NotNull
+    private final Player player;
+
 //    protected final PathfinderMob mob;
 //    private final ItemStackHandler itemHandler = createHandler();
 //
@@ -74,7 +70,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
         this.removerMob = p_34344_;
         this.blocksDestroyed = blocksDestroyed;
         this.inventory = mobInventory;
-//        this.player = player;
+        this.player = player;
     }
 
 //    public boolean iterateBlocks(Player player) {
@@ -214,10 +210,10 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     public void tick() {
 //        super.tick();
         BlockPos blockPos = this.getMoveToTarget();
+        if (CompanionData.numberOfBlockDestroyed < 10 && CompanionData.questBegin) {
         if (!blockPos.closerThan(this.mob.position(), this.acceptedDistance())) {
             this.reachedTarget = false;
             ++this.tryTicks;
-            System.out.println("Adding to the tryTick: " + this.tryTicks);
             if (this.shouldRecalculatePath()) {
                 System.out.println("is still going");
                 System.out.println("actual block pos" + blockActualPos);
@@ -246,7 +242,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             if (this.ticksSinceReachedGoal > 0) {
                 if (!level.isClientSide) {
                     double d0 = 0.08D;
-                    ((ServerLevel)level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.EGG)), (double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.7D, (double)blockPos.getZ() + 0.5D, 3, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, (double)0.15F);
+                    ((ServerLevel)level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.BIRCH_PLANKS)), (double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.7D, (double)blockPos.getZ() + 0.5D, 3, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, (double)0.15F);
                 }
             }
 
@@ -263,9 +259,15 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                 level.removeBlock(blockActualPos, false);
                 CompanionData.numberOfBlockDestroyed++;
                 inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
+                inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
+                inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
+                inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
                 if (!level.getBlockState(blockActualPos.above()).isAir()) {
                     level.removeBlock(blockActualPos.above(), false);
                     CompanionData.numberOfBlockDestroyed++;
+                    inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
+                    inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
+                    inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
                     inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
                 }
 //
@@ -273,36 +275,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                 System.out.println(">>>>>>>>>>>>>");
                 System.out.println(inventory.toString());
                 System.out.println(">>>>>>>>>>>>>");
-//                if(inventory != null)
-//                {
-//                    inventory.addItem(Items.BIRCH_LOG.getDefaultInstance());
-//                    int numberofAcaciaLogsWithinCompanion = 0;
-////                    for(int i = 0; i < player.getInventory().items.size(); i++)
-////                    {
-////                        if(player.getInventory().getItem(i).is(Items.ACACIA_LOG))
-////                        {
-////
-////                        }
-////                    }
-//                    System.out.println(">>>>>>>>>>>>>");
-//                    System.out.println(inventory.toString());
-//                    System.out.println(">>>>>>>>>>>>>");
-//                }
-//                else
-//                {
-//                    System.out.println(">>>>>>>>>>>>> The inventory is NULL");
-//                }
-//                if (this.inventory.isEmpty()) {
-//                 this.inventory.inserItem(1,1)); }
-//                for (int i = 0; i < 4; i++) {
-//                    ItemStack itemstackWood = ;
-//                    if(!itemstackWood.
-////                            .isEmpty()) {
 //
-//                        this.inventory.setItem(i, itemstack);
-//                    }
-//                }
-//                }
                 }
                 if (!level.isClientSide) {
                     for(int i = 0; i < 20; ++i) {
@@ -311,10 +284,15 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                         double d2 = random.nextGaussian() * 0.02D;
                         ((ServerLevel)level).sendParticles(ParticleTypes.POOF, (double)blockPos.getX() + 0.5D, (double)blockPos.getY(), (double)blockPos.getZ() + 0.5D, 1, d3, d1, d2, (double)0.15F);
                     }
-                    this.playBreakSound(level, blockPos);
+                    this.playBreakSound(level, blockPos); }
                 }
             }
+
+        if (CompanionData.numberOfBlockDestroyed >= 10) {
+//            player.sendMessage(new TextComponent("If you need anymore planks or stone, I have some spare!"), null);
             buildHouse();
+//            player.sendMessage(new TextComponent("I've finished my half of the house!"), null);
+        }
             checkCompletedHouse();
             ++this.ticksSinceReachedGoal;
         }

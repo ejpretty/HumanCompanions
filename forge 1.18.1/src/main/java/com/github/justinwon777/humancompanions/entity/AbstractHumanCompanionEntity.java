@@ -275,7 +275,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
                         player.sendMessage(new TextComponent("You must then craft that wood into 32 spruce planks and 1 spruce door"), this.getUUID());
                         player.sendMessage(new TextComponent("You will build half of house, and I will build the other, so just follow what I do!"), this.getUUID());
                         player.sendMessage(new TextComponent("There is also an example house next door using different materials, to see the instructions again simply press Enter"), this.getUUID());
-                        CompanionData.questbegin = true;
+                        CompanionData.questBegin = true;
                         setPatrolPos(null);
                         setPatrolling(false);
                         setFollowing(true);
