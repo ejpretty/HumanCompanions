@@ -69,7 +69,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 //    }
 //        ItemStack stack = this.itemHandler.getStackInSlot(i);
     public CustomRemoveBlockGoal(Block pBlockToRemove, PathfinderMob p_34344_, double pSpeedModifier, int pSearchRange, int blocksDestroyed, SimpleContainer mobInventory, Player player) {
-        super(p_34344_, pSpeedModifier, 10, pSearchRange);
+        super(p_34344_, pSpeedModifier, 24, pSearchRange);
         this.blockToRemove = pBlockToRemove;
         this.removerMob = p_34344_;
         this.blocksDestroyed = blocksDestroyed;
@@ -171,16 +171,20 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
      */
     public void stop() {
         super.stop();
+        System.out.println("stop");
 //        ItemStack woodFinished = new ItemStack(Blocks.ACACIA_LOG, (10));
 //        if (player.getInventory().contains(woodFinished)) {
 //            stop();}
         this.removerMob.fallDistance = 1.0F;
     }
     public boolean canContinueToUse() {
-        if (CompanionData.numberOfBlockDestroyed <= 10) {
-            return true;
-        }
-        return this.tryTicks >= -this.maxStayTicks && this.tryTicks <= 100 && this.isValidTarget(this.mob.level, this.blockPos);
+//        if (CompanionData.numberOfBlockDestroyed <= 10) {
+//            return true;
+//        }
+        System.out.println("canContinueToUse");
+        System.out.println("tryticks: " + tryTicks);
+        //return this.tryTicks >= -this.maxStayTicks && this.tryTicks <= 1200 && this.isValidTarget(this.mob.level, this.blockPos);
+        return this.isValidTarget(this.mob.level, this.blockPos);
 
 
     }
@@ -191,9 +195,10 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     @Override
     public void start() {
 //        this.moveMobToBlock();
-
+        System.out.println("start is being called");
         this.tryTicks = 0;
-        this.maxStayTicks = this.mob.getRandom().nextInt(this.mob.getRandom().nextInt(100) + 100) + 100;
+        this.maxStayTicks = 1200;
+//        this.maxStayTicks = this.mob.getRandom().nextInt(this.mob.getRandom().nextInt(100) + 100) + 100;
         this.ticksSinceReachedGoal = 0;
     }
 
@@ -212,6 +217,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
         if (!blockPos.closerThan(this.mob.position(), this.acceptedDistance())) {
             this.reachedTarget = false;
             ++this.tryTicks;
+            System.out.println("Adding to the tryTick: " + this.tryTicks);
             if (this.shouldRecalculatePath()) {
                 System.out.println("is still going");
                 System.out.println("actual block pos" + blockActualPos);
@@ -355,18 +361,27 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     /**
      * Return true to set given position as destination
      */
+//    protected boolean isValidTarget(LevelReader pLevel, BlockPos pPos) {
+//        ChunkAccess chunkaccess = pLevel.getChunk(SectionPos.blockToSectionCoord(pPos.getX()), SectionPos.blockToSectionCoord(pPos.getZ()), ChunkStatus.FULL, false);
+//        if (chunkaccess == null) {
+//            return false;
+//        } else {
+//            return chunkaccess.getBlockState(pPos).is(this.blockToRemove)
+//                    && pPos.getY() > 69
+//                    && chunkaccess.getBlockState(pPos.east()).isAir()
+//                    && chunkaccess.getBlockState(pPos.west()).isAir()
+//                    && chunkaccess.getBlockState(pPos.south()).isAir()
+//                    && chunkaccess.getBlockState(pPos.north()).isAir();
+////            && chunkaccess.getBlockState(pPos.above()).isAir() && chunkaccess.getBlockState(pPos.above(2)).isAir();
+//        }
+//    }
     protected boolean isValidTarget(LevelReader pLevel, BlockPos pPos) {
         ChunkAccess chunkaccess = pLevel.getChunk(SectionPos.blockToSectionCoord(pPos.getX()), SectionPos.blockToSectionCoord(pPos.getZ()), ChunkStatus.FULL, false);
         if (chunkaccess == null) {
             return false;
         } else {
-            return chunkaccess.getBlockState(pPos).is(this.blockToRemove)
-                    && pPos.getY() > 69
-                    && chunkaccess.getBlockState(pPos.east()).isAir()
-                    && chunkaccess.getBlockState(pPos.west()).isAir()
-                    && chunkaccess.getBlockState(pPos.south()).isAir()
-                    && chunkaccess.getBlockState(pPos.north()).isAir();
-//            && chunkaccess.getBlockState(pPos.above()).isAir() && chunkaccess.getBlockState(pPos.above(2)).isAir();
+            return chunkaccess.getBlockState(pPos).is(this.blockToRemove);
         }
     }
+
 }

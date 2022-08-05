@@ -123,7 +123,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         if(inventory == null)
             inventory = new SimpleContainer(27);
 
-        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.BIRCH_LOG, this, 1.5D, 10, blocksDestroyed, this.inventory, this.player));
+        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.BIRCH_LOG, this, 1.5D, 24, blocksDestroyed, this.inventory, this.player));
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(1, new EatGoal(this));
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
