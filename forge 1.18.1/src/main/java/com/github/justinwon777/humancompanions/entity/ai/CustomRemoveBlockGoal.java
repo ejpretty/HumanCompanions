@@ -335,16 +335,65 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             return null;
         }
     }
+
+    //front wall
+    BlockPos frontBlockBottom1 = new BlockPos(-902, 77, -522);
+    BlockPos frontBlockTop1 = new BlockPos(-902, 78, -522);
+    BlockPos frontBlockBottom2 = new BlockPos(-903, 77, -522);
+    BlockPos frontBlockTop2 = new BlockPos(-903, 78, -522);
+    BlockPos frontBlockBottom3 = new BlockPos(-904, 77, -522);
+    BlockPos frontBlockTop3 = new BlockPos(-904, 78, -522);
+    BlockPos frontBlockBottom4 = new BlockPos(-905, 77, -522);
+    BlockPos frontBlockTop4 = new BlockPos(-905, 78, -522);
+    BlockPos frontBlockBottom5 = new BlockPos(-906, 77, -522);
+    BlockPos frontBlockTop5 = new BlockPos(-906, 78, -522);
+    BlockPos frontBlockBottom6 = new BlockPos(-907, 77, -522);
+    BlockPos frontBlockTop6 = new BlockPos(-907, 78, -522);
+    //side wall
+    BlockPos sideBlockBottom1 = new BlockPos(-907, 77, -521);
+    BlockPos sideBlockTop1 = new BlockPos(-907, 78, -521);
+    BlockPos sideBlockBottom2 = new BlockPos(-907, 77, -520);
+    BlockPos sideBlockTop2 = new BlockPos(-907, 78, -520);
+    BlockPos sideBlockBottom3 = new BlockPos(-907, 77, -519);
+    BlockPos sideBlockTop3 = new BlockPos(-907, 78, -519);
+    BlockPos sideBlockBottom4 = new BlockPos(-907, 77, -518);
+    BlockPos sideBlockTop4 = new BlockPos(-907, 78, -518);
+    BlockPos sideBlockBottom5 = new BlockPos(-907, 77, -517);
+    BlockPos sideBlockTop5 = new BlockPos(-907, 78, -517);
+    BlockPos sideBlockBottom6 = new BlockPos(-907, 77, -516);
+    BlockPos sideBlockTop6 = new BlockPos(-907, 78, -516);
+    //back wall
+    BlockPos backBlockBottom1 = new BlockPos(-906, 77, -516);
+    BlockPos backBlockTop1 = new BlockPos(-906, 78, -516);
+    BlockPos backBlockBottom2 = new BlockPos(-905, 77, -516);
+    BlockPos backBlockTop2 = new BlockPos(-905, 78, -516);
+    BlockPos backBlockBottom3 = new BlockPos(-904, 77, -516);
+    BlockPos backBlockTop3 = new BlockPos(-904, 78, -516);
+    BlockPos backBlockBottom4 = new BlockPos(-903, 77, -516);
+    BlockPos backBlockTop4 = new BlockPos(-903, 78, -516);
+    BlockPos backBlockBottom5 = new BlockPos(-902, 77, -516);
+    BlockPos backBlockTop5 = new BlockPos(-902, 78, -516);
+
+    BlockPos[] houseCoordinates = {frontBlockBottom2, frontBlockTop2, frontBlockBottom3, frontBlockTop3, frontBlockBottom4,
+            frontBlockTop4, frontBlockBottom5, frontBlockTop5, frontBlockBottom6, frontBlockTop6,
+            sideBlockBottom1, sideBlockTop1, sideBlockBottom2, sideBlockTop2, sideBlockBottom3, sideBlockTop3, sideBlockBottom4,
+            sideBlockTop4, sideBlockBottom5, sideBlockTop5, sideBlockBottom6, sideBlockTop6,
+            backBlockBottom1, backBlockTop1, backBlockBottom2, backBlockTop2, backBlockBottom3, backBlockTop3, backBlockBottom4,
+            backBlockTop4, backBlockBottom5, backBlockTop5};
+
     public void buildHouse() {
         Level level = this.mob.level;
-        BlockPos pPos = new BlockPos(-907, 78, -522);
+//        BlockPos pPos = new BlockPos(-907, 78, -522);
         BlockState blockstate = Blocks.BIRCH_PLANKS.defaultBlockState();
-        if (CompanionData.numberOfBlockDestroyed > 10) {
+        for (BlockPos pPos : houseCoordinates) {
+            if (CompanionData.numberOfBlockDestroyed > 10) {
 //            this.ticksSinceReachedGoal--;
-            level.setBlock(pPos, blockstate, 3);
+                level.setBlock(pPos, blockstate, 3);
 //            this.ticksSinceReachedGoal--;
-            level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, pPos);
+                level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, pPos);
+            }
         }
+        CompanionData.companionHalfBuilt = true;
     }
 
     public void checkCompletedHouse() {
