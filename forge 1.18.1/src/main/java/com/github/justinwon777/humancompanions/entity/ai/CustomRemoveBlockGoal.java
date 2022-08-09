@@ -1,5 +1,6 @@
 package com.github.justinwon777.humancompanions.entity.ai;
 
+import com.github.justinwon777.humancompanions.entity.AbstractHumanCompanionEntity;
 import com.github.justinwon777.humancompanions.entity.CompanionData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -37,8 +38,8 @@ import java.util.UUID;
 public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     protected final Block blockToRemove;
     private BlockPos blockActualPos;
-    @NotNull
-    private final Player player;
+    //@NotNull
+    public Player player;
 
 //    protected final PathfinderMob mob;
 //    private final ItemStackHandler itemHandler = createHandler();
@@ -283,16 +284,20 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 
         if (CompanionData.numberOfWoodDestroyed >= 10 && !CompanionData.companionHalfBuilt) {
 //            player.sendMessage(new TextComponent("If you need anymore planks or stone, I have some spare!"), null);
-            System.out.println("number of wood destroyed is greater than or equal to 10");
-            Level level = this.mob.level;
-            BlockState blockstate = Blocks.BIRCH_PLANKS.defaultBlockState();
-            level.setBlock(houseCoordinates[blockCounter], blockstate, 3);
-            level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, houseCoordinates[blockCounter]);
-            blockCounter++;
-            System.out.println("block counter: " + blockCounter);
+            if (this.ticksSinceReachedGoal % 6 == 0) {
+                System.out.println("number of wood destroyed is greater than or equal to 10");
+                Level level = this.mob.level;
+                BlockState blockstate = Blocks.BIRCH_PLANKS.defaultBlockState();
+                level.setBlock(houseCoordinates[blockCounter], blockstate, 3);
+                level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, houseCoordinates[blockCounter]);
+                blockCounter++;
+                System.out.println("block counter: " + blockCounter);
                 if (blockCounter >= 32) {
-                    CompanionData.companionHalfBuilt = true; }
-//            player.sendMessage(new TextComponent("I've finished my half of the house!"), null);
+                    CompanionData.companionHalfBuilt = true;
+                }
+                if(AbstractHumanCompanionEntity.getPlayer() != null)
+                    AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("I've finished my half of the house!"), null);
+            }
         }
 
             checkCompletedHouse();

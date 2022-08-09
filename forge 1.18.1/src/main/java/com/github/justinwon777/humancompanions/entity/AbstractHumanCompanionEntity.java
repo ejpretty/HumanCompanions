@@ -89,6 +89,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
 
     public boolean canPickUpLoot;
     public Player player;
+    private static Player _player;
 
 
 
@@ -116,6 +117,11 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         for (int i = 0; i < CompanionData.huntMobs.length; i++) {
             huntMobGoals.add(new NearestAttackableTargetGoal(this, CompanionData.huntMobs[i], false));
         }
+    }
+
+    public static Player getPlayer()
+    {
+        return _player;
     }
 
     @Override
@@ -264,6 +270,9 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
     }
 
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if(_player == null)
+            _player = player;
+
         ItemStack itemstack = player.getItemInHand(hand);
         if (!this.level.isClientSide && hand == InteractionHand.MAIN_HAND) {
             if (!this.isTame()) {
