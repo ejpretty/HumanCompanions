@@ -123,6 +123,8 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         if(inventory == null)
             inventory = new SimpleContainer(27);
 
+
+
         this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.BIRCH_LOG, this, 1.5D, 24, blocksDestroyed, this.inventory, this.player));
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(1, new EatGoal(this));
@@ -276,6 +278,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
                         player.sendMessage(new TextComponent("You will build half of house, and I will build the other, so just follow what I do!"), this.getUUID());
                         player.sendMessage(new TextComponent("There is also an example house next door using different materials, to see the instructions again simply press Enter"), this.getUUID());
                         CompanionData.questBegin = true;
+                        System.out.println("quest begin equals: " + CompanionData.questBegin);
                         setPatrolPos(null);
                         setPatrolling(false);
                         setFollowing(true);
@@ -581,7 +584,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         Level level = this.companion.level;
         BlockPos pPos = new BlockPos(49, 65, 131);
         BlockState blockstate = Blocks.ACACIA_LOG.defaultBlockState();
-        if (CompanionData.numberOfBlockDestroyed == 10) {
+        if (CompanionData.numberOfWoodDestroyed == 10) {
             level.setBlock(pPos, blockstate, 3);
             level.gameEvent(this.companion, GameEvent.BLOCK_PLACE, pPos);
         }

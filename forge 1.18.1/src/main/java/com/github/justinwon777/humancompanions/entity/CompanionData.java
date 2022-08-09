@@ -265,7 +265,8 @@ public class CompanionData {
             "the Builder"
     };
     //Markers for quests starting/stopping
-    public static int numberOfBlockDestroyed = 8;
+    public static int numberOfWoodDestroyed = 0;
+    public static int numberOfStoneDestroyed = 0;
     public static boolean questBegin = false;
 
     public static boolean companionHalfBuilt = false;
