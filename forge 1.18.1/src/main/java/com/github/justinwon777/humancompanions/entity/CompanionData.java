@@ -270,6 +270,7 @@ public class CompanionData {
     public static boolean questBegin = false;
 
     public static boolean companionHalfBuilt = false;
+    public static boolean playerHalfBuilt = false;
 }
 
 

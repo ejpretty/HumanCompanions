@@ -52,6 +52,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     private final Mob removerMob;
     private int maxStayTicks;
     public int blockCounter = 0;
+    public int checkCounter = 0;
 
     private int ticksSinceReachedGoal;
     private static final int WAIT_AFTER_BLOCK_FOUND = 20;
@@ -288,8 +289,35 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                 System.out.println("number of wood destroyed is greater than or equal to 10");
                 Level level = this.mob.level;
                 BlockState blockstate = Blocks.BIRCH_PLANKS.defaultBlockState();
-                level.setBlock(houseCoordinates[blockCounter], blockstate, 3);
-                level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, houseCoordinates[blockCounter]);
+                level.setBlock(compHouseCoordinates[blockCounter], blockstate, 3);
+                level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, compHouseCoordinates[blockCounter]);
+                blockCounter++;
+                System.out.println("block counter: " + blockCounter);
+                if (blockCounter >= 32) {
+                    CompanionData.companionHalfBuilt = true;
+                }
+                if(AbstractHumanCompanionEntity.getPlayer() != null)
+                    AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("I've finished my half of the house!"), null);
+            }
+        }
+        if (!CompanionData.playerHalfBuilt) {
+//            player.sendMessage(new TextComponent("If you need anymore planks or stone, I have some spare!"), null);
+            if (this.ticksSinceReachedGoal % 6 == 0) {
+//                BlockPos firstBrick = new BlockPos(-897, 77, -522);
+                Level level = this.mob.level;
+                Block birchWood = Blocks.BIRCH_PLANKS;
+                Block andesiteStone = Blocks.POLISHED_ANDESITE;
+                if (level.getBlockState(playerHouseCoordinates[checkCounter]).is(birchWood)) {
+                    System.out.println(checkCounter + " blocks complete!");
+                    checkCounter++;
+                }
+
+
+                System.out.println("number of wood destroyed is greater than or equal to 10");
+
+                BlockState blockstate = Blocks.BIRCH_PLANKS.defaultBlockState();
+                level.setBlock(compHouseCoordinates[blockCounter], blockstate, 3);
+                level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, compHouseCoordinates[blockCounter]);
                 blockCounter++;
                 System.out.println("block counter: " + blockCounter);
                 if (blockCounter >= 32) {
@@ -320,6 +348,51 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             return null;
         }
     }
+
+    //player front wall
+    BlockPos plFrontBlockBottom1 = new BlockPos(-900, 77, -522);
+    BlockPos plFrontBlockTop1 = new BlockPos(-900, 78, -522);
+    BlockPos plFrontBlockBottom2 = new BlockPos(-899, 77, -522);
+    BlockPos plFrontBlockTop2 = new BlockPos(-899, 78, -522);
+    BlockPos plFrontBlockBottom3 = new BlockPos(-898, 77, -522);
+    BlockPos plFrontBlockTop3 = new BlockPos(-898, 78, -522);
+    BlockPos plFrontBlockBottom4 = new BlockPos(-897, 77, -522);
+    BlockPos plFrontBlockTop4 = new BlockPos(-897, 78, -522);
+    BlockPos plFrontBlockBottom5 = new BlockPos(-896, 77, -522);
+    BlockPos plFrontBlockTop5 = new BlockPos(-896, 78, -522);
+
+    //player side wall
+    BlockPos plSideBlockBottom1 = new BlockPos(-896, 77, -521);
+    BlockPos plSideBlockTop1 = new BlockPos(-896, 78, -521);
+    BlockPos plSideBlockBottom2 = new BlockPos(-896, 77, -520);
+    BlockPos plSideBlockTop2 = new BlockPos(-896, 78, -520);
+    BlockPos plSideBlockBottom3 = new BlockPos(-896, 77, -519);
+    BlockPos plSideBlockTop3 = new BlockPos(-896, 78, -519);
+    BlockPos plSideBlockBottom4 = new BlockPos(-896, 77, -518);
+    BlockPos plSideBlockTop4 = new BlockPos(-896, 78, -518);
+    BlockPos plSideBlockBottom5 = new BlockPos(-896, 77, -517);
+    BlockPos plSideBlockTop5 = new BlockPos(-896, 78, -517);
+
+    //player back wall
+    BlockPos plBackBlockBottom1 = new BlockPos(-896, 77, -516);
+    BlockPos plBackBlockTop1 = new BlockPos(-896, 78, -516);
+    BlockPos plBackBlockBottom2 = new BlockPos(-897, 77, -516);
+    BlockPos plBackBlockTop2 = new BlockPos(-897, 78, -516);
+    BlockPos plBackBlockBottom3 = new BlockPos(-898, 77, -516);
+    BlockPos plBackBlockTop3 = new BlockPos(-898, 78, -516);
+    BlockPos plBackBlockBottom4 = new BlockPos(-899, 77, -516);
+    BlockPos plBackBlockTop4 = new BlockPos(-899, 78, -516);
+    BlockPos plBackBlockBottom5 = new BlockPos(-900, 77, -516);
+    BlockPos plBackBlockTop5 = new BlockPos(-900, 78, -516);
+    BlockPos plBackBlockBottom6 = new BlockPos(-901, 77, -516);
+    BlockPos plBackBlockTop6 = new BlockPos(-901, 78, -516);
+
+    BlockPos[] playerHouseCoordinates = {plFrontBlockBottom1, plFrontBlockTop1, plFrontBlockBottom2,plFrontBlockTop2, plFrontBlockBottom3, plFrontBlockTop3, plFrontBlockBottom4,
+            plFrontBlockTop4, plFrontBlockBottom5, plFrontBlockTop5,
+            plSideBlockBottom1, plSideBlockTop1, plSideBlockBottom2, plSideBlockTop2, plSideBlockBottom3, plSideBlockTop3, plSideBlockBottom4,
+            plSideBlockTop4, plSideBlockBottom5, plSideBlockTop5,
+            plBackBlockBottom1, plBackBlockTop1, plBackBlockBottom2, plBackBlockTop2, plBackBlockBottom3, plBackBlockTop3, plBackBlockBottom4,
+            plBackBlockTop4, plBackBlockBottom5, plBackBlockTop5, plBackBlockBottom6, plBackBlockTop6};
 
     //front wall
     BlockPos frontBlockBottom1 = new BlockPos(-902, 77, -522);
@@ -359,7 +432,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     BlockPos backBlockBottom5 = new BlockPos(-902, 77, -516);
     BlockPos backBlockTop5 = new BlockPos(-902, 78, -516);
 
-    BlockPos[] houseCoordinates = {frontBlockBottom2, frontBlockTop2, frontBlockBottom3, frontBlockTop3, frontBlockBottom4,
+    BlockPos[] compHouseCoordinates = {frontBlockBottom2, frontBlockTop2, frontBlockBottom3, frontBlockTop3, frontBlockBottom4,
             frontBlockTop4, frontBlockBottom5, frontBlockTop5, frontBlockBottom6, frontBlockTop6,
             sideBlockBottom1, sideBlockTop1, sideBlockBottom2, sideBlockTop2, sideBlockBottom3, sideBlockTop3, sideBlockBottom4,
             sideBlockTop4, sideBlockBottom5, sideBlockTop5, sideBlockBottom6, sideBlockTop6,
@@ -370,7 +443,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
         Level level = this.mob.level;
 //        BlockPos pPos = new BlockPos(-907, 78, -522);
         BlockState blockstate = Blocks.BIRCH_PLANKS.defaultBlockState();
-        for (BlockPos pPos : houseCoordinates) {
+        for (BlockPos pPos : compHouseCoordinates) {
             if (CompanionData.numberOfWoodDestroyed > 10) {
 //            this.ticksSinceReachedGoal--;
                 level.setBlock(pPos, blockstate, 3);
