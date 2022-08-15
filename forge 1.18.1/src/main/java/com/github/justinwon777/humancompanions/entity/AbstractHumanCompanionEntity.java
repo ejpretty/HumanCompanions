@@ -13,6 +13,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
@@ -36,6 +37,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -100,6 +102,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
     public PatrolGoal patrolGoal;
     public MoveBackToPatrolGoal moveBackGoal;
     public int tameIdx = 5;
+
 
     public AbstractHumanCompanionEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
@@ -213,6 +216,16 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         if (this.getPatrolPos() != null) {
             int[] patrolPos = {this.getPatrolPos().getX(), this.getPatrolPos().getY(), this.getPatrolPos().getZ()};
             tag.putIntArray("patrol_pos", patrolPos);
+        }
+    }
+
+    public void startCompDialogue() {
+        BlockPos questPos = new BlockPos(-900, 78, -511);
+        Level level = this.level;
+        Block blueOrchid = Blocks.BLUE_ORCHID;
+        if (!level.getBlockState(questPos).is(blueOrchid)) {
+            System.out.println("Quest Begin");
+            CompanionData.interactionBegin = true;
         }
     }
 
@@ -598,5 +611,6 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
             level.gameEvent(this.companion, GameEvent.BLOCK_PLACE, pPos);
         }
     }
+
 
 }

@@ -195,6 +195,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     public void tick() {
 //        super.tick();
         BlockPos blockPos = this.getMoveToTarget();
+
         if (CompanionData.numberOfWoodDestroyed < 10 && CompanionData.questBegin) {
         if (!blockPos.closerThan(this.mob.position(), this.acceptedDistance())) {
             this.reachedTarget = false;
@@ -301,36 +302,28 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             }
         }
         if (!CompanionData.playerHalfBuilt) {
+            System.out.println("player half not built");
 //            player.sendMessage(new TextComponent("If you need anymore planks or stone, I have some spare!"), null);
             if (this.ticksSinceReachedGoal % 6 == 0) {
-//                BlockPos firstBrick = new BlockPos(-897, 77, -522);
                 Level level = this.mob.level;
                 Block birchWood = Blocks.BIRCH_PLANKS;
                 Block andesiteStone = Blocks.POLISHED_ANDESITE;
-                if (level.getBlockState(playerHouseCoordinates[checkCounter]).is(birchWood)) {
-                    System.out.println(checkCounter + " blocks complete!");
+                if (level.getBlockState(playerHouseCoordinates[checkCounter]).is(andesiteStone)) {
+                    System.out.println((checkCounter + 1) + " blocks complete!");
                     checkCounter++;
+                    System.out.println("check counter: " + (checkCounter + 1));
                 }
-
-
-                System.out.println("number of wood destroyed is greater than or equal to 10");
-
-                BlockState blockstate = Blocks.BIRCH_PLANKS.defaultBlockState();
-                level.setBlock(compHouseCoordinates[blockCounter], blockstate, 3);
-                level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, compHouseCoordinates[blockCounter]);
-                blockCounter++;
-                System.out.println("block counter: " + blockCounter);
-                if (blockCounter >= 32) {
-                    CompanionData.companionHalfBuilt = true;
+                if (checkCounter >= 32) {
+                    CompanionData.playerHalfBuilt = true;
                 }
                 if(AbstractHumanCompanionEntity.getPlayer() != null)
-                    AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("I've finished my half of the house!"), null);
+                    AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("You have finished the walls of the house!"), null);
             }
-        }
 
-            checkCompletedHouse();
+        }
             ++this.ticksSinceReachedGoal;
         }
+
 
     @Nullable
     private BlockPos getPosWithBlock(BlockPos pPos, BlockGetter pLevel) {
@@ -439,6 +432,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             backBlockBottom1, backBlockTop1, backBlockBottom2, backBlockTop2, backBlockBottom3, backBlockTop3, backBlockBottom4,
             backBlockTop4, backBlockBottom5, backBlockTop5};
 
+    //old build function
     public void buildHouse() {
         Level level = this.mob.level;
 //        BlockPos pPos = new BlockPos(-907, 78, -522);
@@ -453,7 +447,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
         }
         CompanionData.companionHalfBuilt = true;
     }
-
+    //old check function
     public void checkCompletedHouse() {
         BlockPos firstBrick = new BlockPos(-897, 77, -522);
         Level level = this.mob.level;

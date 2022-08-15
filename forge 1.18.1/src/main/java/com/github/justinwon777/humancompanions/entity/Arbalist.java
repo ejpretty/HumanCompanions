@@ -1,17 +1,21 @@
 package com.github.justinwon777.humancompanions.entity;
 
 import com.github.justinwon777.humancompanions.entity.ai.ArbalistRangedCrossbowAttackGoal;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
@@ -76,6 +80,8 @@ public class Arbalist extends AbstractHumanCompanionEntity implements CrossbowAt
         this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
         checkCrossbow();
     }
+
+
 
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn,
                                         MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn,

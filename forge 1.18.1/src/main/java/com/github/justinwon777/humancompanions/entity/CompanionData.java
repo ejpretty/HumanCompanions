@@ -268,6 +268,7 @@ public class CompanionData {
     public static int numberOfWoodDestroyed = 8;
     public static int numberOfStoneDestroyed = 0;
     public static boolean questBegin = false;
+    public static boolean interactionBegin = false;
 
     public static boolean companionHalfBuilt = false;
     public static boolean playerHalfBuilt = false;
