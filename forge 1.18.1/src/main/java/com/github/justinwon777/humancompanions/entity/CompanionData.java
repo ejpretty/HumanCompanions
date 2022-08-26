@@ -265,13 +265,22 @@ public class CompanionData {
             "the Builder"
     };
     //Markers for quests starting/stopping
-    public static int numberOfWoodDestroyed = 8;
+    public static int numberOfWoodDestroyed = 0;
     public static int numberOfStoneDestroyed = 0;
+
+
     public static boolean questBegin = false;
     public static boolean interactionBegin = false;
 
-    public static boolean companionHalfBuilt = false;
+    public static boolean companionHalfWallsBuilt = false;
     public static boolean playerHalfBuilt = false;
+    public static boolean compDoorPlaced = false;
+    public void check() {
+        if (compDoorPlaced && companionHalfWallsBuilt) {
+            if(AbstractHumanCompanionEntity.getPlayer() != null)
+                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("I've finished my half of the house!"), null);
+        }
+    }
 }
 
 

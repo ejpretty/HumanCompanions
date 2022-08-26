@@ -134,7 +134,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
 
 
 
-        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.BIRCH_LOG, this, 1.5D, 24, blocksDestroyed, this.inventory, this.player));
+        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.ACACIA_LOG, this, 1.5D, 24, blocksDestroyed, this.inventory, this.player));
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(1, new EatGoal(this));
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
@@ -295,7 +295,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
                         this.tame(player);
                         player.sendMessage(new TextComponent("Welcome to the town! I'm Bob, and I am here to help you build a house"), this.getUUID());
                         player.sendMessage(new TextComponent("A house is needed to protect yourself from monsters at night"), this.getUUID());
-                        player.sendMessage(new TextComponent("You need to first collect 10 pieces of birch wood, then collect 30 pieces of stone"), this.getUUID());
+                        player.sendMessage(new TextComponent("You need to first collect 10 pieces of acacia wood, then collect 30 pieces of stone"), this.getUUID());
                         player.sendMessage(new TextComponent("You must then craft that wood into 32 spruce planks and 1 spruce door"), this.getUUID());
                         player.sendMessage(new TextComponent("You will build half of house, and I will build the other, so just follow what I do!"), this.getUUID());
                         player.sendMessage(new TextComponent("There is also an example house next door using different materials, to see the instructions again simply press Enter"), this.getUUID());

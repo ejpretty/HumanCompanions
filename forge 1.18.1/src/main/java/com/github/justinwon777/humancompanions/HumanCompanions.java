@@ -31,7 +31,12 @@ import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +45,9 @@ import java.util.Map;
 public class HumanCompanions {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final String MOD_ID = "humancompanions";
+//    CreateFile.main();
+//    WriteToFile.main();
+
 
     public HumanCompanions() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -49,6 +57,9 @@ public class HumanCompanions {
         PacketHandler.register();
         Config.register();
         eventBus.addListener(this::setup);
+
+        CreateFile.main();
+        WriteToFile.main();
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(EventPriority.NORMAL, this::addDimensionalSpacing);
@@ -60,6 +71,8 @@ public class HumanCompanions {
             ConfiguredStructures.registerConfiguredStructures();
         });
     }
+
+
 
     private static Method GETCODEC_METHOD;
     public void addDimensionalSpacing(final WorldEvent.Load event) {

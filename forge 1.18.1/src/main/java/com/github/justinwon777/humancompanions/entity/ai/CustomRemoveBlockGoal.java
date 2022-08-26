@@ -54,6 +54,8 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     public int blockCounter = 0;
     public int checkCounter = 0;
 
+    public int compHouseCheckCounter = 0;
+
     private int ticksSinceReachedGoal;
     private static final int WAIT_AFTER_BLOCK_FOUND = 20;
     public int blocksDestroyed;
@@ -92,255 +94,6 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 ////        }
 //        return true;
 //    }
-
-
-    @Override
-    public boolean requiresUpdateEveryTick() {
-        return super.requiresUpdateEveryTick();
-    }
-
-    private boolean tryFindBlock() {
-        return this.blockPos != null && this.isValidTarget(this.mob.level, this.blockPos) ? true : this.findNearestBlock();
-    }
-    public BlockPos getMoveToTarget() {
-
-        blockActualPos = this.blockPos;
-
-
-        Vec3 southPos = new Vec3(blockActualPos.south().getX(), blockActualPos.south().getY(), blockActualPos.south().getZ());
-        Vec3 eastPos = new Vec3(blockActualPos.east().getX(), blockActualPos.east().getY(), blockActualPos.east().getZ());
-        Vec3 northPos = new Vec3(blockActualPos.north().getX(), blockActualPos.north().getY(), blockActualPos.north().getZ());
-        Vec3 westPos = new Vec3(blockActualPos.west().getX(), blockActualPos.west().getY(), blockActualPos.west().getZ());
-
-        double disSouth = this.mob.position().distanceTo(southPos);
-        double disEast = this.mob.position().distanceTo(eastPos);
-        double disNorth = this.mob.position().distanceTo(northPos);
-        double disWest = this.mob.position().distanceTo(westPos);
-
-        if (disSouth < disEast) {
-            if (disSouth < disNorth) {
-                if (disSouth < disWest)
-                    return blockActualPos.south();
-                else
-                    return blockActualPos.west();
-            } else if (disNorth < disWest)
-                return blockActualPos.north();
-            else
-                return blockActualPos.west();
-        }
-        else if (disEast < disNorth) {
-            if (disEast < disWest)
-                return blockActualPos.east();
-            else
-                return blockActualPos.west();
-        }
-        else if (disNorth < disWest)
-            return blockActualPos.north();
-        else
-            return blockActualPos.west();
-
-    }
-
-    public double acceptedDistance() {
-        return 1.5D;
-    }
-    protected boolean isReachedTarget() {
-        return this.reachedTarget;
-    }
-//    protected void moveMobToBlock() {
-//        this.mob.getNavigation().moveTo((double)((float)this.blockPos.getX()) + 0.5D, (double)(this.blockPos.getY()/*+1*/), (double)((float)this.blockPos.getZ()) + 0.5D, this.speedModifier);
-//    }
-    /**
-     * Reset the task's internal state. Called when this task is interrupted by another one
-     */
-    public void stop() {
-//        super.stop();
-        System.out.println("stop");
-        this.removerMob.fallDistance = 1.0F;
-    }
-    public boolean canContinueToUse() {
-//        if (CompanionData.numberOfBlockDestroyed <= 10) {
-//            return true;
-//        }
-        System.out.println("canContinueToUse");
-        System.out.println("tryticks: " + tryTicks);
-        System.out.println(this.isValidTarget(this.mob.level, this.blockActualPos));
-        return this.tryTicks >= -this.maxStayTicks && this.tryTicks <= 1200 && /*this.isValidTarget(this.mob.level, this.blockActualPos)*/true;
-//        return this.isValidTarget(this.mob.level, this.blockPos);
-
-
-    }
-
-    /**
-     * Execute a one shot task or start executing a continuous task
-     */
-    @Override
-    public void start() {
-//        this.moveMobToBlock();
-        System.out.println("start is being called");
-        this.tryTicks = 0;
-        this.maxStayTicks = this.mob.getRandom().nextInt(this.mob.getRandom().nextInt(100) + 100) + 100;
-        this.ticksSinceReachedGoal = 0;
-    }
-
-    public void playDestroyProgressSound(LevelAccessor pLevel, BlockPos pPos) {
-    }
-
-    public void playBreakSound(Level pLevel, BlockPos pPos) {
-    }
-
-    /**
-     * Keep ticking a continuous task that has already been started
-     */
-    public void tick() {
-//        super.tick();
-        BlockPos blockPos = this.getMoveToTarget();
-
-        if (CompanionData.numberOfWoodDestroyed < 10 && CompanionData.questBegin) {
-        if (!blockPos.closerThan(this.mob.position(), this.acceptedDistance())) {
-            this.reachedTarget = false;
-            ++this.tryTicks;
-            if (this.shouldRecalculatePath()) {
-                System.out.println("is still going");
-                System.out.println("actual block pos" + blockActualPos);
-                System.out.println("target navigated blockPos" + blockPos);
-
-                this.mob.getNavigation().moveTo((double)((float)blockPos.getX()), (double)blockPos.getY(), (double)((float)blockPos.getZ()), this.speedModifier);
-                System.out.println("renavigate");
-//                this.mob.getNavigation().moveTo((double)((float)this.mob.position().x) +.5D, (double)((float)this.mob.position().y), (double)((float)this.mob.position().z) +.5D, this.speedModifier);
-
-            }
-        } else {
-            System.out.println(this.mob.position());
-            this.reachedTarget = true;
-            System.out.println("reached target");
-            --this.tryTicks;
-        }
-
-
-
-        Level level = this.removerMob.level;
-//        BlockPos blockpos1 = this.removerMob.blockPosition();
-//        blockpos = this.getPosWithBlock(blockpos1, level);
-        Random random = this.removerMob.getRandom();
-
-        if (this.isReachedTarget() && blockPos != null) {
-            if (this.ticksSinceReachedGoal > 0) {
-                if (!level.isClientSide) {
-                    double d0 = 0.08D;
-                    ((ServerLevel)level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.BIRCH_PLANKS)), (double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.7D, (double)blockPos.getZ() + 0.5D, 3, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, (double)0.15F);
-                }
-            }
-
-            if (this.ticksSinceReachedGoal % 2 == 0) {
-                if (this.ticksSinceReachedGoal % 6 == 0) {
-                    this.playDestroyProgressSound(level, this.blockPos);
-                }
-            }
-
-            //this is how long it takes to destroy the block once it has been reached
-            //then removes the block at blockpos, then adds that same item to either a stack of existing or an empty slot
-            if (this.ticksSinceReachedGoal > 70) {
-
-//                level.removeBlock(blockActualPos, false);
-//                CompanionData.numberOfWoodDestroyed++;
-//                inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
-//                inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
-//                inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
-//                inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
-
-                if (!level.getBlockState(blockActualPos).isAir()) {
-                    level.removeBlock(blockActualPos, false);
-                    CompanionData.numberOfWoodDestroyed++;
-                    inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
-                    inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
-                    inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
-                    inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
-                }
-                else if (!level.getBlockState(blockActualPos.above()).isAir()) {
-                    level.removeBlock(blockActualPos.above(), false);
-                    CompanionData.numberOfWoodDestroyed++;
-                    inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
-                    inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
-                    inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
-                    inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
-                    tryFindBlock();
-                }
-//
-                System.out.println("number of wood destroyed: " + CompanionData.numberOfWoodDestroyed);
-                System.out.println(">>>>>>>>>>>>>");
-                System.out.println(inventory.toString());
-                System.out.println(">>>>>>>>>>>>>");
-//
-                }
-                if (!level.isClientSide) {
-                    for(int i = 0; i < 20; ++i) {
-                        double d3 = random.nextGaussian() * 0.02D;
-                        double d1 = random.nextGaussian() * 0.02D;
-                        double d2 = random.nextGaussian() * 0.02D;
-                        ((ServerLevel)level).sendParticles(ParticleTypes.POOF, (double)blockPos.getX() + 0.5D, (double)blockPos.getY(), (double)blockPos.getZ() + 0.5D, 1, d3, d1, d2, (double)0.15F);
-                    }
-                    this.playBreakSound(level, blockPos); }
-                }
-            }
-
-        if (CompanionData.numberOfWoodDestroyed >= 10 && !CompanionData.companionHalfBuilt) {
-//            player.sendMessage(new TextComponent("If you need anymore planks or stone, I have some spare!"), null);
-            if (this.ticksSinceReachedGoal % 6 == 0) {
-                System.out.println("number of wood destroyed is greater than or equal to 10");
-                Level level = this.mob.level;
-                BlockState blockstate = Blocks.BIRCH_PLANKS.defaultBlockState();
-                level.setBlock(compHouseCoordinates[blockCounter], blockstate, 3);
-                level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, compHouseCoordinates[blockCounter]);
-                blockCounter++;
-                System.out.println("block counter: " + blockCounter);
-                if (blockCounter >= 32) {
-                    CompanionData.companionHalfBuilt = true;
-                }
-                if(AbstractHumanCompanionEntity.getPlayer() != null)
-                    AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("I've finished my half of the house!"), null);
-            }
-        }
-        if (!CompanionData.playerHalfBuilt) {
-            System.out.println("player half not built");
-//            player.sendMessage(new TextComponent("If you need anymore planks or stone, I have some spare!"), null);
-            if (this.ticksSinceReachedGoal % 6 == 0) {
-                Level level = this.mob.level;
-                Block birchWood = Blocks.BIRCH_PLANKS;
-                Block andesiteStone = Blocks.POLISHED_ANDESITE;
-                if (level.getBlockState(playerHouseCoordinates[checkCounter]).is(andesiteStone)) {
-                    System.out.println((checkCounter + 1) + " blocks complete!");
-                    checkCounter++;
-                    System.out.println("check counter: " + (checkCounter + 1));
-                }
-                if (checkCounter >= 32) {
-                    CompanionData.playerHalfBuilt = true;
-                }
-                if(AbstractHumanCompanionEntity.getPlayer() != null)
-                    AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("You have finished the walls of the house!"), null);
-            }
-
-        }
-            ++this.ticksSinceReachedGoal;
-        }
-
-
-    @Nullable
-    private BlockPos getPosWithBlock(BlockPos pPos, BlockGetter pLevel) {
-        if (pLevel.getBlockState(pPos).is(this.blockToRemove)) {
-            return pPos;
-        } else {
-            BlockPos[] ablockpos = new BlockPos[]{pPos.below(), pPos.west(), pPos.east(), pPos.north(), pPos.south(), pPos.below().below()};
-
-            for(BlockPos blockpos : ablockpos) {
-                if (pLevel.getBlockState(blockpos).is(this.blockToRemove)) {
-                    return blockpos;
-                }
-            }
-
-            return null;
-        }
-    }
 
     //player front wall
     BlockPos plFrontBlockBottom1 = new BlockPos(-900, 77, -522);
@@ -432,27 +185,295 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             backBlockBottom1, backBlockTop1, backBlockBottom2, backBlockTop2, backBlockBottom3, backBlockTop3, backBlockBottom4,
             backBlockTop4, backBlockBottom5, backBlockTop5};
 
+    @Override
+    public boolean requiresUpdateEveryTick() {
+        return super.requiresUpdateEveryTick();
+    }
+
+    private boolean tryFindBlock() {
+        return this.blockPos != null && this.isValidTarget(this.mob.level, this.blockPos) ? true : this.findNearestBlock();
+    }
+    public BlockPos getMoveToTarget() {
+
+        blockActualPos = this.blockPos;
+
+
+        Vec3 southPos = new Vec3(blockActualPos.south().getX(), blockActualPos.south().getY(), blockActualPos.south().getZ());
+        Vec3 eastPos = new Vec3(blockActualPos.east().getX(), blockActualPos.east().getY(), blockActualPos.east().getZ());
+        Vec3 northPos = new Vec3(blockActualPos.north().getX(), blockActualPos.north().getY(), blockActualPos.north().getZ());
+        Vec3 westPos = new Vec3(blockActualPos.west().getX(), blockActualPos.west().getY(), blockActualPos.west().getZ());
+
+        double disSouth = this.mob.position().distanceTo(southPos);
+        double disEast = this.mob.position().distanceTo(eastPos);
+        double disNorth = this.mob.position().distanceTo(northPos);
+        double disWest = this.mob.position().distanceTo(westPos);
+
+        if (disSouth < disEast) {
+            if (disSouth < disNorth) {
+                if (disSouth < disWest)
+                    return blockActualPos.south();
+                else
+                    return blockActualPos.west();
+            } else if (disNorth < disWest)
+                return blockActualPos.north();
+            else
+                return blockActualPos.west();
+        }
+        else if (disEast < disNorth) {
+            if (disEast < disWest)
+                return blockActualPos.east();
+            else
+                return blockActualPos.west();
+        }
+        else if (disNorth < disWest)
+            return blockActualPos.north();
+        else
+            return blockActualPos.west();
+
+    }
+
+    public double acceptedDistance() {
+        return 1.5D;
+    }
+    protected boolean isReachedTarget() {
+        return this.reachedTarget;
+    }
+//    protected void moveMobToBlock() {
+//        this.mob.getNavigation().moveTo((double)((float)this.blockPos.getX()) + 0.5D, (double)(this.blockPos.getY()/*+1*/), (double)((float)this.blockPos.getZ()) + 0.5D, this.speedModifier);
+//    }
+    /**
+     * Reset the task's internal state. Called when this task is interrupted by another one
+     */
+    public void stop() {
+//        super.stop();
+        System.out.println("stop");
+        this.removerMob.fallDistance = 1.0F;
+    }
+    public boolean canContinueToUse() {
+//        if (CompanionData.numberOfBlockDestroyed <= 10) {
+//            return true;
+//        }
+        System.out.println("canContinueToUse");
+        System.out.println("tryticks: " + tryTicks);
+        System.out.println(this.isValidTarget(this.mob.level, this.blockActualPos));
+        return this.tryTicks >= -this.maxStayTicks && this.tryTicks <= 1200 && /*this.isValidTarget(this.mob.level, this.blockActualPos)*/true;
+//        return this.isValidTarget(this.mob.level, this.blockPos);
+
+
+    }
+
+    /**
+     * Execute a one shot task or start executing a continuous task
+     */
+    @Override
+    public void start() {
+//        this.moveMobToBlock();
+        System.out.println("start is being called");
+//        AbstractHumanCompanionEntity.startCompDialogue();
+        this.tryTicks = 0;
+        this.maxStayTicks = this.mob.getRandom().nextInt(this.mob.getRandom().nextInt(100) + 100) + 100;
+        this.ticksSinceReachedGoal = 0;
+    }
+
+    public void playDestroyProgressSound(LevelAccessor pLevel, BlockPos pPos) {
+    }
+
+    public void playBreakSound(Level pLevel, BlockPos pPos) {
+    }
+
+    /**
+     * Keep ticking a continuous task that has already been started
+     */
+    public void tick() {
+//        super.tick();
+        BlockPos blockPos = this.getMoveToTarget();
+
+        if (CompanionData.numberOfWoodDestroyed < 10 && CompanionData.questBegin) {
+        if (!blockPos.closerThan(this.mob.position(), this.acceptedDistance())) {
+            this.reachedTarget = false;
+            ++this.tryTicks;
+            if (this.shouldRecalculatePath()) {
+                System.out.println("is still going");
+                this.mob.getNavigation().moveTo((double)((float)blockPos.getX()), (double)blockPos.getY(), (double)((float)blockPos.getZ()), this.speedModifier);
+                System.out.println("renavigate");
+//                this.mob.getNavigation().moveTo((double)((float)this.mob.position().x) +.5D, (double)((float)this.mob.position().y), (double)((float)this.mob.position().z) +.5D, this.speedModifier);
+
+            }
+        } else {
+            System.out.println(this.mob.position());
+            this.reachedTarget = true;
+            System.out.println("reached target");
+            --this.tryTicks;
+        }
+
+
+
+        Level level = this.removerMob.level;
+//        BlockPos blockpos1 = this.removerMob.blockPosition();
+//        blockpos = this.getPosWithBlock(blockpos1, level);
+        Random random = this.removerMob.getRandom();
+
+        if (this.isReachedTarget() && blockPos != null) {
+            if (this.ticksSinceReachedGoal > 0) {
+                if (!level.isClientSide) {
+                    double d0 = 0.08D;
+                    ((ServerLevel)level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.ACACIA_PLANKS)), (double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.7D, (double)blockPos.getZ() + 0.5D, 3, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, ((double)random.nextFloat() - 0.5D) * 0.08D, (double)0.15F);
+                }
+            }
+
+            if (this.ticksSinceReachedGoal % 2 == 0) {
+                if (this.ticksSinceReachedGoal % 6 == 0) {
+                    this.playDestroyProgressSound(level, this.blockPos);
+                }
+            }
+
+            //this is how long it takes to destroy the block once it has been reached
+            //then removes the block at blockpos, then adds that same item to either a stack of existing or an empty slot
+            if (this.ticksSinceReachedGoal > 70) {
+
+//                level.removeBlock(blockActualPos, false);
+//                CompanionData.numberOfWoodDestroyed++;
+//                inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
+//                inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
+//                inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
+//                inventory.addItem(Items.BIRCH_PLANKS.getDefaultInstance());
+
+                if (!level.getBlockState(blockActualPos).isAir()) {
+                    level.removeBlock(blockActualPos, false);
+                    CompanionData.numberOfWoodDestroyed++;
+                    inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
+                    inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
+                    inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
+                    inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
+                }
+                else if (!level.getBlockState(blockActualPos.above()).isAir()) {
+                    level.removeBlock(blockActualPos.above(), false);
+                    CompanionData.numberOfWoodDestroyed++;
+                    inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
+                    inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
+                    inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
+                    inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
+                    tryFindBlock();
+                }
+//
+                System.out.println("number of wood destroyed: " + CompanionData.numberOfWoodDestroyed);
+                System.out.println(">>>>>>>>>>>>>");
+                System.out.println(inventory.toString());
+                System.out.println(">>>>>>>>>>>>>");
+//
+                }
+                if (!level.isClientSide) {
+                    for(int i = 0; i < 20; ++i) {
+                        double d3 = random.nextGaussian() * 0.02D;
+                        double d1 = random.nextGaussian() * 0.02D;
+                        double d2 = random.nextGaussian() * 0.02D;
+                        ((ServerLevel)level).sendParticles(ParticleTypes.POOF, (double)blockPos.getX() + 0.5D, (double)blockPos.getY(), (double)blockPos.getZ() + 0.5D, 1, d3, d1, d2, (double)0.15F);
+                    }
+                    this.playBreakSound(level, blockPos); }
+                }
+            }
+
+        if (CompanionData.numberOfWoodDestroyed >= 10 && !CompanionData.companionHalfWallsBuilt) {
+//            player.sendMessage(new TextComponent("If you need anymore planks or stone, I have some spare!"), null);
+            if (this.ticksSinceReachedGoal % 6 == 0) {
+                System.out.println("number of wood destroyed is greater than or equal to 10");
+                Level level = this.mob.level;
+                Block acacia = Blocks.ACACIA_PLANKS;
+                BlockState blockstate = Blocks.ACACIA_PLANKS.defaultBlockState();
+                level.setBlock(compHouseCoordinates[blockCounter], blockstate, 3);
+                level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, compHouseCoordinates[blockCounter]);
+                blockCounter++;
+                System.out.println("block counter: " + blockCounter);
+                if (blockCounter >= 32) {
+                    for (BlockPos pPos : compHouseCoordinates) {
+                        if (level.getBlockState(pPos).is(acacia)) {
+                            compHouseCheckCounter++;
+                            if (compHouseCheckCounter == 32) {
+                                CompanionData.companionHalfWallsBuilt = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (CompanionData.companionHalfWallsBuilt) {
+            Level level = this.mob.level;
+            BlockState door = Blocks.ACACIA_DOOR.defaultBlockState();
+            Block doorBlock = Blocks.ACACIA_DOOR;
+            BlockPos doorPos = new BlockPos(-902, 77, -522);
+            if (level.getBlockState(doorPos).isAir()) {
+                level.setBlock(doorPos, door, 3);
+                level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, doorPos);
+                if (level.getBlockState(doorPos).is(doorBlock)) {
+                    CompanionData.compDoorPlaced = true;
+                }
+            }
+        }
+//        if (CompanionData.compDoorPlaced && CompanionData.companionHalfWallsBuilt) {
+//            if(AbstractHumanCompanionEntity.getPlayer() != null)
+//                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("I've finished my half of the house!"), null);
+//        }
+//        if (!CompanionData.playerHalfBuilt) {
+//            System.out.println("player half not built");
+////            player.sendMessage(new TextComponent("If you need anymore planks or stone, I have some spare!"), null);
+//            if (this.ticksSinceReachedGoal % 6 == 0) {
+//                Level level = this.mob.level;
+//                Block birchWood = Blocks.BIRCH_PLANKS;
+//                Block andesiteStone = Blocks.POLISHED_ANDESITE;
+//                if (level.getBlockState(playerHouseCoordinates[checkCounter]).is(andesiteStone)) {
+//                    System.out.println((checkCounter + 1) + " blocks complete!");
+//                    checkCounter++;
+//                    System.out.println("check counter: " + (checkCounter + 1));
+//                }
+//                if (checkCounter >= 32) {
+//                    CompanionData.playerHalfBuilt = true;
+//                }
+//                if(AbstractHumanCompanionEntity.getPlayer() != null)
+//                    AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("You have finished the walls of the house!"), null);
+//            }
+//
+//        }
+            ++this.ticksSinceReachedGoal;
+        }
+
+
+    @Nullable
+    private BlockPos getPosWithBlock(BlockPos pPos, BlockGetter pLevel) {
+        if (pLevel.getBlockState(pPos).is(this.blockToRemove)) {
+            return pPos;
+        } else {
+            BlockPos[] ablockpos = new BlockPos[]{pPos.below(), pPos.west(), pPos.east(), pPos.north(), pPos.south(), pPos.below().below()};
+
+            for(BlockPos blockpos : ablockpos) {
+                if (pLevel.getBlockState(blockpos).is(this.blockToRemove)) {
+                    return blockpos;
+                }
+            }
+
+            return null;
+        }
+    }
+
+
+
     //old build function
     public void buildHouse() {
         Level level = this.mob.level;
-//        BlockPos pPos = new BlockPos(-907, 78, -522);
-        BlockState blockstate = Blocks.BIRCH_PLANKS.defaultBlockState();
+        BlockState blockstate = Blocks.ACACIA_PLANKS.defaultBlockState();
         for (BlockPos pPos : compHouseCoordinates) {
             if (CompanionData.numberOfWoodDestroyed > 10) {
-//            this.ticksSinceReachedGoal--;
                 level.setBlock(pPos, blockstate, 3);
-//            this.ticksSinceReachedGoal--;
                 level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, pPos);
             }
         }
-        CompanionData.companionHalfBuilt = true;
+        CompanionData.companionHalfWallsBuilt = true;
     }
     //old check function
     public void checkCompletedHouse() {
         BlockPos firstBrick = new BlockPos(-897, 77, -522);
         Level level = this.mob.level;
-        Block birchWood = Blocks.BIRCH_PLANKS;
-        if (level.getBlockState(firstBrick).is(birchWood)) {
+        Block acaciaWood = Blocks.ACACIA_PLANKS;
+        if (level.getBlockState(firstBrick).is(acaciaWood)) {
             System.out.println("First block complete!");
         }
     }
