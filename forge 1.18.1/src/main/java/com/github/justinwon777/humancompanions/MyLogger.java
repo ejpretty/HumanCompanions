@@ -1,38 +1,64 @@
 package com.github.justinwon777.humancompanions;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.*;
 
 public class MyLogger {
 
-    private static FileHandler fileTxt;
-    private static SimpleFormatter formatterTxt;
-    private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static MyLogger instance;
 
-    public static void setup() throws IOException {
+    private final String filename = "C:/Users/Emma/IdeaProjects/HumanCompanions/forge 1.18.1/run/logs/customLogs/log.log";
+    private final String loggerName = "MyLogger";
+    private static Logger logger;
+    private FileHandler fh;
+    private final int limit = 1024 * 10000; //10 MB
+    private SimpleFormatter sf;
 
-        // get the global logger to configure it
-        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private MyLogger() {
+        logger = Logger.getLogger(loggerName);
 
-        // suppress the logging output to the console
-        Logger rootLogger = Logger.getLogger("MyLogger");
-        Handler[] handlers = rootLogger.getHandlers();
-        if (handlers[0] instanceof ConsoleHandler) {
-            rootLogger.removeHandler(handlers[0]);
+        sf = new SimpleFormatter();
+        try {
+            fh = new FileHandler(filename, limit, 1, true);
+            sf = new SimpleFormatter();
+            fh.setFormatter(new SimpleFormatter() {
+                private static final String format =
+                        "[%1$tF %1$tT.%1$tL] [%2$-7s] %3$s %n";
+
+                public synchronized String format(
+                        LogRecord logRecord)
+                {
+                    return String.format(
+                            format, new Date(logRecord.getMillis()),
+                            logRecord.getLevel().getLocalizedName(),
+                            logRecord.getMessage());
+                }
+            });
+
+            logger.addHandler(fh);
+        } catch (SecurityException | IOException e) {
+            e.printStackTrace();
         }
+    }
 
-        logger.setLevel(Level.INFO);
-        fileTxt = new FileHandler("Logging.txt");
+    public static MyLogger getInstance() {
+        if (instance == null) {
+            instance = new MyLogger();
+        }
+        return instance;
+    }
 
-        // create a TXT formatter
-        formatterTxt = new SimpleFormatter();
-        fileTxt.setFormatter(formatterTxt);
-        logger.addHandler(fileTxt);
+    public void info(String message) {
+        logger.info(message);
+    }
 
+    public void warning(String message) {
+        logger.warning(message);
+    }
+
+    public void severe(String message) {
+        logger.severe(message);
     }
 }
-
-
-

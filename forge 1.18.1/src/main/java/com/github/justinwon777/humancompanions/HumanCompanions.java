@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -28,25 +29,30 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedWriter;
+//import org.apache.logging.log4j;
+
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.lang.reflect.WildcardType;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.openjdk.nashorn.internal.objects.NativeString.valueOf;
 
 
 @Mod(HumanCompanions.MOD_ID)
 public class HumanCompanions {
-    public static final Logger LOGGER = LogManager.getLogger();
+//    static final Logger logger = Logger.getLogger(MyLogger.class.getName());
     public static final String MOD_ID = "humancompanions";
-//    CreateFile.main();
-//    WriteToFile.main();
+    public static MyLogger logger = MyLogger.getInstance();
+
+    public Level level;
+    public String levelId;
+
+
 
 
     public HumanCompanions() {
@@ -57,9 +63,11 @@ public class HumanCompanions {
         PacketHandler.register();
         Config.register();
         eventBus.addListener(this::setup);
+//        this.levelId = p_78276_;
+        System.out.println("level id: " + getLevelId());
+//        logger.severe(valueOf(getLevelId()) + " participant/world ID");
+        logger.severe("hope it works");
 
-        CreateFile.main();
-        WriteToFile.main();
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(EventPriority.NORMAL, this::addDimensionalSpacing);
@@ -72,7 +80,9 @@ public class HumanCompanions {
         });
     }
 
-
+    public String getLevelId() {
+        return this.levelId;
+    }
 
     private static Method GETCODEC_METHOD;
     public void addDimensionalSpacing(final WorldEvent.Load event) {
@@ -161,7 +171,7 @@ public class HumanCompanions {
                 if(cgRL != null && cgRL.getNamespace().equals("terraforged")) return;
             }
             catch(Exception e){
-                HumanCompanions.LOGGER.error("Was unable to check if " + serverLevel.dimension().location() + " is using " +
+                logger.severe("Was unable to check if " + serverLevel.dimension().location() + " is using " +
                         "Terraforged's ChunkGenerator.");
             }
 
@@ -182,16 +192,16 @@ public class HumanCompanions {
         HashMultimap<ConfiguredStructureFeature<?, ?>, ResourceKey<Biome>> configuredStructureToBiomeMultiMap =
                 StructureToMultiMap.get(configuredStructureFeature.feature);
         if(configuredStructureToBiomeMultiMap.containsValue(biomeRegistryKey)) {
-            HumanCompanions.LOGGER.error("""
+            logger.severe("""
                     Detected 2 ConfiguredStructureFeatures that share the same base StructureFeature trying to be added to same biome. One will be prevented from spawning.
                     This issue happens with vanilla too and is why a Snowy Village and Plains Village cannot spawn in the same biome because they both use the Village base structure.
                     The two conflicting ConfiguredStructures are: {}, {}
                     The biome that is attempting to be shared: {}
-                """,
-                    BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE.getId(configuredStructureFeature),
-                    BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE.getId(configuredStructureToBiomeMultiMap.entries().stream().filter(e -> e.getValue() == biomeRegistryKey).findFirst().get().getKey()),
-                    biomeRegistryKey
-            );
+                """);
+            logger.severe(String.valueOf(BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE.getId(configuredStructureFeature)));
+            logger.severe(String.valueOf(BuiltinRegistries.CONFIGURED_STRUCTURE_FEATURE.getId(configuredStructureToBiomeMultiMap.entries().stream().filter(e -> e.getValue() == biomeRegistryKey).findFirst().get().getKey())));
+            logger.severe(String.valueOf(biomeRegistryKey));
+//            );
         }
         else{
             configuredStructureToBiomeMultiMap.put(configuredStructureFeature, biomeRegistryKey);

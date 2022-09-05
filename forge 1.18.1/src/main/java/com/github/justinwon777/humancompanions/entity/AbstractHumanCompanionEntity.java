@@ -1,5 +1,6 @@
 package com.github.justinwon777.humancompanions.entity;
 
+import com.github.justinwon777.humancompanions.HumanCompanions;
 import com.github.justinwon777.humancompanions.container.CompanionContainer;
 import com.github.justinwon777.humancompanions.core.EntityInit;
 import com.github.justinwon777.humancompanions.core.PacketHandler;
@@ -27,6 +28,7 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
@@ -41,6 +43,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
@@ -48,9 +51,13 @@ import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.PacketDistributor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.antlr.v4.runtime.atn.BasicBlockStartState;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -58,6 +65,9 @@ import java.util.Optional;
 import static java.beans.XMLDecoder.createHandler;
 
 public class AbstractHumanCompanionEntity extends TamableAnimal {
+//    Logger logger = HumanCompanions.lo
+
+//    logger.log(org.apache.logging.log4j.Level.forName("DIAG", 350), "another message");
 
     private static final EntityDataAccessor<Integer> DATA_TYPE_ID = SynchedEntityData.defineId(AbstractHumanCompanionEntity.class,
             EntityDataSerializers.INT);
@@ -84,15 +94,9 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
     public static final MobCategory CATEGORY = MobCategory.CREATURE;
     public SimpleContainer inventory;
 
-//    private final ItemStackHandler itemHandler = createHandler();
-//
-//
-//    private final LazyOptional<IItemHandler> handler = LazyOptional.of(() -> itemHandler);
-
     public boolean canPickUpLoot;
     public Player player;
     private static Player _player;
-
 
 
     public EquipmentSlot[] armorTypes = new EquipmentSlot[]{EquipmentSlot.FEET, EquipmentSlot.LEGS,
@@ -131,9 +135,6 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
     protected void registerGoals() {
         if(inventory == null)
             inventory = new SimpleContainer(27);
-
-
-
         this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.ACACIA_LOG, this, 1.5D, 24, blocksDestroyed, this.inventory, this.player));
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(1, new EatGoal(this));
@@ -226,6 +227,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         if (!level.getBlockState(questPos).is(blueOrchid)) {
             System.out.println("Quest Begin");
             CompanionData.interactionBegin = true;
+            HumanCompanions.logger.severe("companion_interaction_start");
         }
     }
 
@@ -299,7 +301,12 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
                         player.sendMessage(new TextComponent("You must then craft that wood into 32 spruce planks and 1 spruce door"), this.getUUID());
                         player.sendMessage(new TextComponent("You will build half of house, and I will build the other, so just follow what I do!"), this.getUUID());
                         player.sendMessage(new TextComponent("There is also an example house next door using different materials, to see the instructions again simply press Enter"), this.getUUID());
+//                        HumanCompanions.logger.severe("quest begin message pre quest beginning");
                         CompanionData.questBegin = true;
+                        HumanCompanions.logger.severe("quest begin message post quest beginning");
+//                        if (CompanionData.questBegin) {
+//                            HumanCompanions.logger.severe("embedded if statement quest begin message");
+//                        }
                         System.out.println("quest begin equals: " + CompanionData.questBegin);
                         setPatrolPos(null);
                         setPatrolling(false);

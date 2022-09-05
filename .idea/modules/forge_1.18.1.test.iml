@@ -12,6 +12,10 @@
     </facet>
   </component>
   <component name="McpModuleSettings">
-    <option name="srgType" value="SRG" />
+    <option name="mappingFile" value="C:\Users\Emma\IdeaProjects\HumanCompanions\forge 1.18.1\build\createMcpToSrg\output.tsrg" />
+    <option name="mcpVersion" value="parchment_2022.03.06-1.18.1" />
+    <option name="minecraftVersion" value="1.18.1" />
+    <option name="platformVersion" value="39.1.0" />
+    <option name="srgType" value="TSRG" />
   </component>
 </module>

@@ -1,5 +1,6 @@
 package com.github.justinwon777.humancompanions.entity.ai;
 
+import com.github.justinwon777.humancompanions.HumanCompanions;
 import com.github.justinwon777.humancompanions.entity.AbstractHumanCompanionEntity;
 import com.github.justinwon777.humancompanions.entity.CompanionData;
 import net.minecraft.core.BlockPos;
@@ -390,6 +391,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                             compHouseCheckCounter++;
                             if (compHouseCheckCounter == 32) {
                                 CompanionData.companionHalfWallsBuilt = true;
+                                HumanCompanions.logger.severe("companion_walls_built");
                             }
                         }
                     }
@@ -406,6 +408,8 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                 level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, doorPos);
                 if (level.getBlockState(doorPos).is(doorBlock)) {
                     CompanionData.compDoorPlaced = true;
+                    HumanCompanions.logger.severe("companion_door_placed");
+
                 }
             }
         }
@@ -466,7 +470,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                 level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, pPos);
             }
         }
-        CompanionData.companionHalfWallsBuilt = true;
+//        CompanionData.companionHalfWallsBuilt = true;
     }
     //old check function
     public void checkCompletedHouse() {
