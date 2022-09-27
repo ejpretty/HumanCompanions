@@ -1,11 +1,15 @@
 package com.github.justinwon777.humancompanions;
 
+import net.minecraft.world.level.storage.LevelStorageSource;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.logging.*;
 
+
 public class MyLogger {
+
 
     private static MyLogger instance;
 
@@ -21,7 +25,7 @@ public class MyLogger {
 
         sf = new SimpleFormatter();
         try {
-            fh = new FileHandler(filename, limit, 1, true);
+            fh = new FileHandler(filename, limit, 1, false);
             sf = new SimpleFormatter();
             fh.setFormatter(new SimpleFormatter() {
                 private static final String format =
@@ -41,6 +45,7 @@ public class MyLogger {
         } catch (SecurityException | IOException e) {
             e.printStackTrace();
         }
+//        fh.close();
     }
 
     public static MyLogger getInstance() {
@@ -61,4 +66,5 @@ public class MyLogger {
     public void severe(String message) {
         logger.severe(message);
     }
+
 }

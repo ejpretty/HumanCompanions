@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -21,6 +21,8 @@ import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
+import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -31,16 +33,16 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 //import org.apache.logging.log4j.LogManager;
 //import org.apache.logging.log4j.Logger;
+import net.minecraft.world.level.LevelSettings;
 
+import net.minecraft.world.level.storage.PrimaryLevelData;
 //import org.apache.logging.log4j;
 
-import java.io.File;
+import javax.security.auth.kerberos.KerberosTicket;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.openjdk.nashorn.internal.objects.NativeString.valueOf;
 
 
 @Mod(HumanCompanions.MOD_ID)
@@ -50,38 +52,26 @@ public class HumanCompanions {
     public static MyLogger logger = MyLogger.getInstance();
 
     public Level level;
-    public String levelId;
-
-
-
 
     public HumanCompanions() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
         EntityInit.ENTITIES.register(eventBus);
         StructureInit.DEFERRED_REGISTRY_STRUCTURE.register(eventBus);
         PacketHandler.register();
         Config.register();
         eventBus.addListener(this::setup);
-//        this.levelId = p_78276_;
-        System.out.println("level id: " + getLevelId());
-//        logger.severe(valueOf(getLevelId()) + " participant/world ID");
-        logger.severe("hope it works");
-
+        logger.severe("participant/world ID: " + "p");
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(EventPriority.NORMAL, this::addDimensionalSpacing);
     }
 
     public void setup(final FMLCommonSetupEvent event) {
+
         event.enqueueWork(() -> {
             StructureInit.setupStructures();
             ConfiguredStructures.registerConfiguredStructures();
         });
-    }
-
-    public String getLevelId() {
-        return this.levelId;
     }
 
     private static Method GETCODEC_METHOD;

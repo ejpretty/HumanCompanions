@@ -1,11 +1,13 @@
 package com.github.justinwon777.humancompanions.entity;
 
 import com.github.justinwon777.humancompanions.HumanCompanions;
+import com.github.justinwon777.humancompanions.MyLogger;
 import com.github.justinwon777.humancompanions.container.CompanionContainer;
 import com.github.justinwon777.humancompanions.core.EntityInit;
 import com.github.justinwon777.humancompanions.core.PacketHandler;
 import com.github.justinwon777.humancompanions.entity.ai.*;
 import com.github.justinwon777.humancompanions.networking.OpenInventoryPacket;
+import com.mojang.authlib.minecraft.client.MinecraftClient;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
@@ -14,7 +16,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
@@ -28,8 +29,6 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
@@ -38,37 +37,27 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.PacketDistributor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.antlr.v4.runtime.atn.BasicBlockStartState;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.beans.XMLDecoder.createHandler;
+
 
 public class AbstractHumanCompanionEntity extends TamableAnimal {
-//    Logger logger = HumanCompanions.lo
-
-//    logger.log(org.apache.logging.log4j.Level.forName("DIAG", 350), "another message");
-
     private static final EntityDataAccessor<Integer> DATA_TYPE_ID = SynchedEntityData.defineId(AbstractHumanCompanionEntity.class,
             EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> EATING = SynchedEntityData.defineId(AbstractHumanCompanionEntity.class,
@@ -93,12 +82,13 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
 
     public static final MobCategory CATEGORY = MobCategory.CREATURE;
     public SimpleContainer inventory;
+    public static MyLogger logger = MyLogger.getInstance();
 
     public boolean canPickUpLoot;
     public Player player;
     private static Player _player;
-
-
+//    private static Level level;
+//    private LevelSettings settings;
     public EquipmentSlot[] armorTypes = new EquipmentSlot[]{EquipmentSlot.FEET, EquipmentSlot.LEGS,
             EquipmentSlot.CHEST, EquipmentSlot.HEAD};
     public List<NearestAttackableTargetGoal> alertMobGoals = new ArrayList<>();
@@ -108,12 +98,14 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
     public int tameIdx = 5;
 
 
+
     public AbstractHumanCompanionEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
-
+//        LevelData lvlname = level.getLevelData();
+//        String levelName = net.minecraft.world.level.storage.DerivedLevelData
+//                LevelSettings.levelName();
         if(inventory == null)
             inventory = new SimpleContainer(27);
-
         this.setTame(false);
         this.setCanPickUpLoot(true);
         ((GroundPathNavigation)this.getNavigation()).setCanOpenDoors(true);
@@ -135,7 +127,10 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
     protected void registerGoals() {
         if(inventory == null)
             inventory = new SimpleContainer(27);
-        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.ACACIA_LOG, this, 1.5D, 24, blocksDestroyed, this.inventory, this.player));
+
+
+
+        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.ACACIA_LOG, this, 1.5D, 24, blocksDestroyed, this.inventory, this.player, this.level));
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(1, new EatGoal(this));
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
@@ -180,6 +175,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         AttributeInstance attributeinstance = this.getAttribute(Attributes.MAX_HEALTH);
         attributeinstance.addPermanentModifier(SPAWN_HEALTH_MODIFIER);
         this.setHealth(this.getMaxHealth());
+
         setCompanionSkin(this.random.nextInt(CompanionData.maleSkins.length));
         setCustomName(new TextComponent(CompanionData.getRandomName()));
         setPatrolPos(this.blockPosition());
@@ -206,6 +202,8 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         super.addAdditionalSaveData(tag);
         tag.put("inventory", this.inventory.createTag());
         tag.putInt("skin", this.getCompanionSkin());
+//        tag.putString("LevelName", this.levelSettings.levelName());
+//        System.out.println(" Level name is: " + this.settings.levelName());
         tag.putBoolean("Eating", this.isEating());
         tag.putBoolean("Alert", this.isAlert());
         tag.putBoolean("Hunting", this.isHunting());
@@ -219,18 +217,6 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
             tag.putIntArray("patrol_pos", patrolPos);
         }
     }
-
-    public void startCompDialogue() {
-        BlockPos questPos = new BlockPos(-900, 78, -511);
-        Level level = this.level;
-        Block blueOrchid = Blocks.BLUE_ORCHID;
-        if (!level.getBlockState(questPos).is(blueOrchid)) {
-            System.out.println("Quest Begin");
-            CompanionData.interactionBegin = true;
-            HumanCompanions.logger.severe("companion_interaction_start");
-        }
-    }
-
     public boolean canPickUpLoot() {
         return true;
     }
@@ -295,18 +281,15 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
                     itemstack.shrink(1);
                     if (this.random.nextInt(tameIdx) == 0) {
                         this.tame(player);
-                        player.sendMessage(new TextComponent("Welcome to the town! I'm Bob, and I am here to help you build a house"), this.getUUID());
-                        player.sendMessage(new TextComponent("A house is needed to protect yourself from monsters at night"), this.getUUID());
-                        player.sendMessage(new TextComponent("You need to first collect 10 pieces of acacia wood, then collect 30 pieces of stone"), this.getUUID());
-                        player.sendMessage(new TextComponent("You must then craft that wood into 32 spruce planks and 1 spruce door"), this.getUUID());
-                        player.sendMessage(new TextComponent("You will build half of house, and I will build the other, so just follow what I do!"), this.getUUID());
-                        player.sendMessage(new TextComponent("There is also an example house next door using different materials, to see the instructions again simply press Enter"), this.getUUID());
-//                        HumanCompanions.logger.severe("quest begin message pre quest beginning");
+                        player.sendMessage(new TextComponent("<Bob The Builder> Hi I'm Bob, and I am here to help you build a house"), this.getUUID());
+                        player.sendMessage(new TextComponent("<Bob The Builder> A house is needed to protect yourself from monsters at night"), this.getUUID());
+                        player.sendMessage(new TextComponent("<Bob The Builder> You need to first collect 10 pieces of acacia wood, then collect 30 pieces of stone"), this.getUUID());
+                        player.sendMessage(new TextComponent("<Bob The Builder> You must then craft that wood into 32 acacia planks"), this.getUUID());
+                        player.sendMessage(new TextComponent("<Bob The Builder> You will build half of house, and I will build the other, the outline is on the ground in purple"), this.getUUID());
+                        player.sendMessage(new TextComponent("<Bob The Builder> The walls should be two planks tall, with the stone roof one block above that covering the whole hours"), this.getUUID());
+                        player.sendMessage(new TextComponent("<Bob The Builder> Good luck! To see the instructions again simply press Enter"), this.getUUID());
                         CompanionData.questBegin = true;
                         HumanCompanions.logger.severe("quest begin message post quest beginning");
-//                        if (CompanionData.questBegin) {
-//                            HumanCompanions.logger.severe("embedded if statement quest begin message");
-//                        }
                         System.out.println("quest begin equals: " + CompanionData.questBegin);
                         setPatrolPos(null);
                         setPatrolling(false);
@@ -608,16 +591,4 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
             this.targetSelector.removeGoal(huntMobGoals.get(i));
         }
     }
-
-    public void buildHouse() {
-        Level level = this.companion.level;
-        BlockPos pPos = new BlockPos(49, 65, 131);
-        BlockState blockstate = Blocks.ACACIA_LOG.defaultBlockState();
-        if (CompanionData.numberOfWoodDestroyed == 10) {
-            level.setBlock(pPos, blockstate, 3);
-            level.gameEvent(this.companion, GameEvent.BLOCK_PLACE, pPos);
-        }
-    }
-
-
 }

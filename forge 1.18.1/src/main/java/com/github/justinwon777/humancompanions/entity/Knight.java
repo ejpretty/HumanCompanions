@@ -9,11 +9,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.storage.LevelStorageSource;
 
 import javax.annotation.Nullable;
 
 public class Knight extends AbstractHumanCompanionEntity {
 
+//    public LevelStorageSource.LevelStorageAccess plevelAccess;
     public Knight(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
         this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0D, true));
