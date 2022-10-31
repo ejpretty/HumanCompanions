@@ -1,6 +1,7 @@
 package com.github.justinwon777.humancompanions.entity;
 
 import com.github.justinwon777.humancompanions.HumanCompanions;
+import com.github.justinwon777.humancompanions.entity.ai.CustomRemoveBlockGoal;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -266,79 +267,34 @@ public class CompanionData {
     };
     //Markers for quests starting/stopping
     public static int numberOfWoodDestroyed = 0;
-    public static int numberOfStoneDestroyed = 0;
-
-
     public static boolean questBegin = false;
-    public static boolean interactionBegin = false;
-
     public static boolean companionHalfWallsBuilt = false;
     public static boolean playersHalfBuilt = false;
-
     public static boolean playerWallsBuilt = false;
     public static boolean playerRoofBuilt = false;
+    public static boolean playerDoorPlaced = false;
     public static boolean compDoorPlaced = false;
-
+    public static boolean playerDoorFinDialogue = false;
     public static boolean compWallsFinDialogue = false;
-    public static void compWallsCheck() {
-        if (compDoorPlaced && companionHalfWallsBuilt) {
-            if(AbstractHumanCompanionEntity.getPlayer() != null) {
-                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> I've finished my half of the house!"), null);
-                HumanCompanions.logger.severe("CompanionWallsFinishedMessage");
-            }
-        }
-    }
     public static boolean playerWallsHelpDialogue = false;
-    public static void playerWallsIncompleteCheck() {
-        if (!playersHalfBuilt) {
-            if(AbstractHumanCompanionEntity.getPlayer() != null) {
-                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> If you need anymore planks or stone, I have some spare!"), null);
-                HumanCompanions.logger.severe("CompanionHelpMessage");
-            }
-        }
-    }
-
     public static boolean playerWallsFinDialogue = false;
-    public static void playerWallsCheck() {
-        if (playerWallsBuilt) {
-            if(AbstractHumanCompanionEntity.getPlayer() != null) {
-                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished the walls of the house!"), null);
-                HumanCompanions.logger.severe("PlayerWallsFinishedMessage");
-            }
-        }
-    }
-
     public static boolean playerRoofFinDialogue = false;
-    public static void playerRoofCheck() {
-        if (playerRoofBuilt) {
-            if(AbstractHumanCompanionEntity.getPlayer() != null) {
-                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished the roof of the house!"), null);
-                HumanCompanions.logger.severe("PlayerRoofFinishedMessage");
-            }
-        }
-    }
     public static boolean playerHalfFinDialogue = false;
-    public static void playerHalfCheck() {
-        if (playersHalfBuilt) {
-            if(AbstractHumanCompanionEntity.getPlayer() != null) {
-                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have 100% finished the house!"), null);
-                HumanCompanions.logger.severe("PlayerHalfFinishedMessage");
-            }
-        }
-    }
-
     public static boolean playerInstructionsDialogue = false;
+    public static boolean tutorialBegin = false;
+    public static boolean tutorialEnd = false;
+    public static boolean isCompInPlace = false;
+    public static boolean tutorialInstructionsDialogue = false;
 
-    public static void instructionDialogue() {
-        if (playerInstructionsDialogue) {
-            if(AbstractHumanCompanionEntity.getPlayer() != null) {
-                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Instructions> Welcome to FIX IT LAND, your new home!"), null);
-                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Instructions> Feel free to take some time to look around and then when you are ready, find Bob"), null);
-                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Instructions> Bob requires some pumpkin as payment for his help in building your house, which you will find in the farm in the corner"), null);
-                HumanCompanions.logger.severe("PlayerInstructionsFinished");
-            }
-        }
-    }
+
+    //progress messaging
+    public static boolean player8WallsFinDialogue = false;
+    public static boolean player16WallsFinDialogue = false;
+    public static boolean player24WallsFinDialogue = false;
+    public static boolean player21RoofFinDialogue = false;
+    public static boolean player42RoofFinDialogue = false;
+    public static boolean player63RoofFinDialogue = false;
+
 }
 
 

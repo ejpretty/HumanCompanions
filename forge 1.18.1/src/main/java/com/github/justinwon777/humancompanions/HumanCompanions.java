@@ -11,6 +11,7 @@ import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.biome.Biome;
@@ -52,6 +53,7 @@ public class HumanCompanions {
     public static MyLogger logger = MyLogger.getInstance();
 
     public Level level;
+    public static Player player;
 
     public HumanCompanions() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -60,7 +62,7 @@ public class HumanCompanions {
         PacketHandler.register();
         Config.register();
         eventBus.addListener(this::setup);
-        logger.severe("participant/world ID: " + "p");
+        logger.severe("participant_id: " + "p");
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(EventPriority.NORMAL, this::addDimensionalSpacing);
@@ -161,8 +163,8 @@ public class HumanCompanions {
                 if(cgRL != null && cgRL.getNamespace().equals("terraforged")) return;
             }
             catch(Exception e){
-                logger.severe("Was unable to check if " + serverLevel.dimension().location() + " is using " +
-                        "Terraforged's ChunkGenerator.");
+                //logger.severe("Was unable to check if " + serverLevel.dimension().location() + " is using " +
+                        //"Terraforged's ChunkGenerator.");
             }
 
             Map<StructureFeature<?>, StructureFeatureConfiguration> tempMap = new HashMap<>(worldStructureConfig.structureConfig());

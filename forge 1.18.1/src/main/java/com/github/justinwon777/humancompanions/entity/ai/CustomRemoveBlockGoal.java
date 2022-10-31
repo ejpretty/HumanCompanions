@@ -1,11 +1,14 @@
 package com.github.justinwon777.humancompanions.entity.ai;
 
 import com.github.justinwon777.humancompanions.HumanCompanions;
+import com.github.justinwon777.humancompanions.entity.AbstractHumanCompanionEntity;
 import com.github.justinwon777.humancompanions.entity.CompanionData;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Mob;
@@ -29,16 +32,27 @@ import net.minecraft.world.entity.player.Player;
 import javax.annotation.Nullable;
 import java.util.Random;
 
+import static com.github.justinwon777.humancompanions.entity.AbstractHumanCompanionEntity.tameTrigger;
+
 public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     protected final Block blockToRemove;
     private BlockPos blockActualPos;
     public Player player;
+    private static Player _player;
     private boolean reachedTarget = false;
     private final Mob removerMob;
     private int maxStayTicks;
+    public int talkTicks;
     public int blockCounter = 0;
+
+    public int bobTextCounter = 0;
+
+    public int tutorialTextCounter = 0;
+
+    public int instructionsTextCounter = 0;
     public int wallCheckCounter = 0;
     public int roofCheckCounter = 0;
+
     public int compWallsCheckCounter = 0;
     private int ticksSinceReachedGoal;
     private static final int WAIT_AFTER_BLOCK_FOUND = 20;
@@ -46,11 +60,10 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     public SimpleContainer inventory;
     public Level level;
 
-    public CustomRemoveBlockGoal(Block pBlockToRemove, PathfinderMob p_34344_, double pSpeedModifier, int pSearchRange, int blocksDestroyed, SimpleContainer mobInventory, Player player, Level level) {
+    public CustomRemoveBlockGoal(Block pBlockToRemove, PathfinderMob p_34344_, double pSpeedModifier, int pSearchRange, SimpleContainer mobInventory, Player player, Level level) {
         super(p_34344_, pSpeedModifier, 24, pSearchRange);
         this.blockToRemove = pBlockToRemove;
         this.removerMob = p_34344_;
-        this.blocksDestroyed = blocksDestroyed;
         this.inventory = mobInventory;
         this.player = player;
         this.level = level;
@@ -338,9 +351,9 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 //        if (CompanionData.numberOfBlockDestroyed <= 10) {
 //            return true;
 //        }
-        System.out.println("canContinueToUse");
-        System.out.println("tryticks: " + tryTicks);
-        System.out.println(this.isValidTarget(this.mob.level, this.blockActualPos));
+//        System.out.println("canContinueToUse");
+//        System.out.println("tryticks: " + tryTicks);
+//        System.out.println(this.isValidTarget(this.mob.level, this.blockActualPos));
         return this.tryTicks >= -this.maxStayTicks && this.tryTicks <= 1200 && /*this.isValidTarget(this.mob.level, this.blockActualPos)*/true;
 //        return this.isValidTarget(this.mob.level, this.blockPos);
 
@@ -354,7 +367,6 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     public void start() {
 //        this.moveMobToBlock();
         System.out.println("start is being called");
-
         this.tryTicks = 0;
         this.maxStayTicks = this.mob.getRandom().nextInt(this.mob.getRandom().nextInt(100) + 100) + 100;
         this.ticksSinceReachedGoal = 0;
@@ -367,29 +379,140 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 
     public void playBreakSound(Level pLevel, BlockPos pPos) {
     }
+    public boolean shouldRecalculatePath() {
+        return this.tryTicks > 100;
+    }
+
+    String BobText1 = "<Bob The Builder> Hi I'm Bob, and I am here to help you build a house";
+    String BobText2 = "<Bob The Builder> A house is needed to protect yourself from monsters at night";
+    String BobText3 = "<Bob The Builder> You need to first collect 10 pieces of acacia wood, then collect 84 pieces of andesite stone";
+    String BobText4 = "<Bob The Builder> You must then craft that wood into 32 acacia planks and craft the stone into 84 polished andesite stone";
+
+    String BobText5 = "<Bob The Builder> You also need to craft two doors using the acacia planks";
+
+    String BobText6 = "<Bob The Builder> The crafting table can be found inside of the house next to where the blue flower was";
+    String BobText7 = "<Bob The Builder> I will be building half of the house's walls, and you will be building the other half of the walls as well as the roof";
+    String BobText8 = "<Bob The Builder> The walls should be two planks tall, with the stone roof one block above that covering the whole house";
+    String BobText9 = "<Bob The Builder> After that you should place the doors on the blue tiles";
+    String BobText10 = "<Bob The Builder> I'll keep you updated as you go along and let you know when you are finished";
+    String BobText11 = "<Bob The Builder> If you follow me I'll show you where to find the wood and where to build the house";
+
+    String[] bobTextArray = {BobText1, BobText2, BobText3, BobText4, BobText5, BobText6, BobText7, BobText8, BobText9, BobText10, BobText11};
+
+    String PlayerText1 = "<Instructions> Welcome to FIX IT LAND, your new home!";
+    String PlayerText2 = "<Instructions> Feel free to take some time to look around and then when you are ready, find Bob";
+    String PlayerText3 = "<Instructions> Bob requires some melon as payment for his help in building your house, which you will find in the farm in the corner";
+
+    String[] playerTextArray = {PlayerText1, PlayerText2, PlayerText3};
+
+    String tutorialText1 = "<Instructions> Welcome to the tutorial!";
+    String tutorialText2 = "<Instructions> Take you time to look around and read the signs";
+    String tutorialText3 = "<Instructions> You can use the mouse wheel to select the item you want in your character's hand";
+    String tutorialText4 = "<Instructions> Right click a chest or crafting table to use it";
+    String tutorialText5 = "<Instructions> Open and close your characters inventory with E";
+    String tutorialText6 = "<Instructions> Press space bar to jump";
+    String tutorialText7 = "<Instructions> When you have food in your hand, right click an animal to become friends with it";
+    String tutorialText8 = "<Instructions> When you have a block in your hand, right click to place the block";
+    String tutorialText9 = "<Instructions> If you feel comfortable with the things you have learnt, please place a red flower from the chest on the grass block next to the trees";
+    String tutorialText10 = "<Instructions> Good luck! To see the instructions again simply press /";
+
+    String[] tutorialTextArray = {tutorialText1, tutorialText2, tutorialText3, tutorialText4, tutorialText5,
+            tutorialText6, tutorialText7, tutorialText8, tutorialText9, tutorialText10};
 
     /**
      * Keep ticking a continuous task that has already been started
      */
+
+    public static Player getPlayer()
+    {
+        return _player;
+    }
     public void tick() {
 //        super.tick();
         BlockPos blockPos = this.getMoveToTarget();
+        talkTicks++;
+        //tutorial begin text
+        if (!CompanionData.tutorialInstructionsDialogue && !CompanionData.tutorialBegin) {
+//            System.out.println("!CompanionData.tutorialInstructionsDialogue && !CompanionData.tutorialBegin");
+            BlockPos questPosTute = new BlockPos(52, -59, 148);
+            Level level = this.level;
+            Block blueOrchidTute = Blocks.BLUE_ORCHID;
+//            System.out.println("pre if (!level.getBlockState(questPos).is(blueOrchid))");
+            if (!level.getBlockState(questPosTute).is(blueOrchidTute) && !CompanionData.tutorialInstructionsDialogue) {
+//                System.out.println("we got to the if statement, blue orchid is not there");
+                if (talkTicks % 96 == 0) {
+                    //((tutorialTextArray[tutorialTextCounter].length()) * 2)
+                    System.out.println("String length *2: " + ((tutorialTextArray[tutorialTextCounter].length()) * 2));
+                    Minecraft.getInstance().player.chat((tutorialTextArray[tutorialTextCounter]));
+                    HumanCompanions.logger.severe(tutorialTextArray[tutorialTextCounter]);
+                    tutorialTextCounter++;
+                }
+                if (tutorialTextCounter == 10) {
+                    CompanionData.tutorialInstructionsDialogue = true;
+                    HumanCompanions.logger.severe("tutorial_instructions_finished");
+                    System.out.println("Tutorial Begin");
+                }
+            }
+        }
+        //tutorial end text
+        if (!CompanionData.tutorialEnd) {
+//            System.out.println("!CompanionData.tutorialEnd");
+            BlockPos questPosTute2 = new BlockPos(34, -59, 170);
+            Level level = this.level;
+            Block poppy = Blocks.POPPY;
+            if (level.getBlockState(questPosTute2).is(poppy)) {
+//                System.out.println("we got to the if statement, blue orchid is not there");
+                if (Minecraft.getInstance().player != null) {
+                Minecraft.getInstance().player.chat("<Instructions> Tutorial Complete");
+                HumanCompanions.logger.severe("tutorial_finished_message");
+                System.out.println("Tutorial end");
+                CompanionData.tutorialInstructionsDialogue = true;
+                CompanionData.tutorialEnd = true;
+                }
+            }
+        }
+
         // pre bob instructions
         if (!CompanionData.questBegin && !CompanionData.playerInstructionsDialogue) {
             BlockPos questPos = new BlockPos(-314, 69, -253);
             Level level = this.level;
             Block blueOrchid = Blocks.BLUE_ORCHID;
-            if (!level.getBlockState(questPos).is(blueOrchid) && !CompanionData.interactionBegin) {
-                if (!CompanionData.playerInstructionsDialogue) {
-                    CompanionData.instructionDialogue();
-                    System.out.println("Quest Begin");
-                    CompanionData.playerInstructionsDialogue = true;
+//            System.out.println("pre if (!level.getBlockState(questPos).is(blueOrchid))");
+            if (!level.getBlockState(questPos).is(blueOrchid) && !CompanionData.playerInstructionsDialogue) {
+                if (talkTicks % 96 * 2 == 0) {
+                    System.out.println("String length *2: " + ((playerTextArray[instructionsTextCounter].length()) * 2));
+                    Minecraft.getInstance().player.chat((playerTextArray[instructionsTextCounter]));
+                    HumanCompanions.logger.severe(playerTextArray[instructionsTextCounter]);
+                    instructionsTextCounter++;
                 }
+                if (instructionsTextCounter == 3) {
+                    CompanionData.playerInstructionsDialogue = true;
+                    HumanCompanions.logger.severe("player_instructions_finished");
+                    System.out.println("Pre Bob Instructions");
+                }
+//                System.out.println("we got to the if statement, blue orchid is not there");
+//                }
+            }
+        }
+//        System.out.println("tame trigger = " + tameTrigger);
+        //bob instructions
+        if (tameTrigger && !CompanionData.questBegin) {
+            if (talkTicks % 96 == 0) {
+                System.out.println("String length *2: " + ((bobTextArray[bobTextCounter].length()) * 2));
+                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent(bobTextArray[bobTextCounter]), null);
+                HumanCompanions.logger.severe(bobTextArray[bobTextCounter]);
+                bobTextCounter++;
+            }
+            if (bobTextCounter == 11) {
+                tameTrigger = false;
+                CompanionData.questBegin = true;
+                HumanCompanions.logger.severe("bob_instructions_finished");
+                System.out.println("quest begin equals: " + CompanionData.questBegin);
             }
         }
         //navigation and destroying of blocks
-        if (CompanionData.interactionBegin) {
-            //this located and removes the blocks
+        if (CompanionData.questBegin) {
+            //this locates and removes the blocks
             if (CompanionData.numberOfWoodDestroyed < 10) {
                 if (!blockPos.closerThan(this.mob.position(), this.acceptedDistance())) {
                     this.reachedTarget = false;
@@ -432,18 +555,18 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                             CompanionData.numberOfWoodDestroyed++;
                             inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
                             inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
-                            inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
-                            inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
+                            inventory.addItem(Items.POLISHED_ANDESITE.getDefaultInstance());
+                            inventory.addItem(Items.POLISHED_ANDESITE.getDefaultInstance());
                         } else if (!level.getBlockState(blockActualPos.above()).isAir()) {
                             level.removeBlock(blockActualPos.above(), false);
                             CompanionData.numberOfWoodDestroyed++;
                             inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
                             inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
-                            inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
-                            inventory.addItem(Items.ACACIA_PLANKS.getDefaultInstance());
+                            inventory.addItem(Items.POLISHED_ANDESITE.getDefaultInstance());
+                            inventory.addItem(Items.POLISHED_ANDESITE.getDefaultInstance());
                             tryFindBlock();
                         }
-                        System.out.println("number of wood destroyed: " + CompanionData.numberOfWoodDestroyed);
+//                        System.out.println("number of wood destroyed: " + CompanionData.numberOfWoodDestroyed);
                     }
                     if (!level.isClientSide) {
                         for (int i = 0; i < 20; ++i) {
@@ -459,20 +582,25 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
 
             //places the blocks
             if (CompanionData.numberOfWoodDestroyed >= 10 && !CompanionData.companionHalfWallsBuilt) {
+                if (!CompanionData.isCompInPlace) {
+                    this.mob.getNavigation().moveTo(-290, 67, -277, 1.5);
+                    CompanionData.isCompInPlace = true;
+                }
                 if (this.ticksSinceReachedGoal % 8 == 0) {
                     Level level = this.mob.level;
                     BlockState blockstate = Blocks.ACACIA_PLANKS.defaultBlockState();
-                    this.mob.getNavigation().moveTo(-290, 67, -277, 9);
+
                     level.setBlock(compHouseCoordinates[blockCounter], blockstate, 3);
                     level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, compHouseCoordinates[blockCounter]);
                     blockCounter++;
-                    System.out.println("block counter: " + blockCounter);
+//                    System.out.println("block counter: " + blockCounter);
                 }
             }
 
             //checks if companions has placed all their blocks
             if (blockCounter >= 32 && !CompanionData.companionHalfWallsBuilt) {
                 Block acacia = Blocks.ACACIA_PLANKS;
+                this.mob.getNavigation().moveTo(-290, 67, -277, 1);
                 for (BlockPos pPos : compHouseCoordinates) {
                     if (level.getBlockState(pPos).is(acacia)) {
                         compWallsCheckCounter++;
@@ -481,11 +609,10 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                             HumanCompanions.logger.severe("companion_walls_built");
                             if (CompanionData.compDoorPlaced && CompanionData.companionHalfWallsBuilt) {
                                 if (!CompanionData.compWallsFinDialogue) {
-                                    CompanionData.compWallsCheck();
+                                    AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> I've finished my half of the house!"), null);
+                                    HumanCompanions.logger.severe("companion_walls_finished_message");
                                     CompanionData.compWallsFinDialogue = true;
                                 }
-//                                if (AbstractHumanCompanionEntity.getPlayer() != null)
-//                                    AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("Bob The Builder: I've finished my half of the house!"), null);
                             }
                         }
                     }
@@ -495,15 +622,16 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             //places door
             if (CompanionData.companionHalfWallsBuilt) {
                 if (!CompanionData.playerWallsHelpDialogue) {
-                    CompanionData.playerWallsIncompleteCheck();
+                    AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> If you need anymore planks or stone, I have some spare!"), null);
+                    HumanCompanions.logger.severe("companion_help_message");
                     CompanionData.playerWallsHelpDialogue = true;
                 }
                 Level level = this.mob.level;
                 BlockState door = Blocks.SPRUCE_DOOR.defaultBlockState();
                 Block doorBlock = Blocks.SPRUCE_DOOR;
-                BlockPos doorPos = new BlockPos(-902, 77, -522);
+                BlockPos doorPos = new BlockPos(-293, 66, -280);
                 if (level.getBlockState(doorPos).isAir()) {
-                    level.setBlock(doorPos, door, 3);
+                    level.setBlock(doorPos, door, 2);
                     level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, doorPos);
                     if (level.getBlockState(doorPos).is(doorBlock)) {
                         CompanionData.compDoorPlaced = true;
@@ -518,14 +646,36 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                     Level level = this.mob.level;
                     Block acaciaWood = Blocks.ACACIA_PLANKS;
                     if (level.getBlockState(playerWallsCoordinates[wallCheckCounter]).is(acaciaWood)) {
-                        System.out.println((wallCheckCounter + 1) + " blocks complete!");
+//                        System.out.println((wallCheckCounter + 1) + " blocks complete!");
                         wallCheckCounter++;
-                    }
-                    if (wallCheckCounter >= 32) {
-                        CompanionData.playerWallsBuilt = true;
-                        if (!CompanionData.playerWallsFinDialogue) {
-                            CompanionData.playerWallsCheck();
-                            CompanionData.playerWallsFinDialogue = true;
+                        if (wallCheckCounter == 8) {
+                            if (!CompanionData.player8WallsFinDialogue) {
+                                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished 25% of the walls!"), null);
+                                HumanCompanions.logger.severe("player_walls_25_percent_finished_message");
+                                CompanionData.player8WallsFinDialogue = true;
+                            }
+                        }
+                        if (wallCheckCounter == 16) {
+                            if (!CompanionData.player16WallsFinDialogue) {
+                                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished 50% of the walls!"), null);
+                                HumanCompanions.logger.severe("player_walls_50_percent_finished_message");
+                                CompanionData.player16WallsFinDialogue = true;
+                            }
+                        }
+                        if (wallCheckCounter == 24) {
+                            if (!CompanionData.player24WallsFinDialogue) {
+                                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished 75% of the walls!"), null);
+                                HumanCompanions.logger.severe("player_walls_75_percent_finished_message");
+                                CompanionData.player24WallsFinDialogue = true;
+                            }
+                        }
+                        if (wallCheckCounter >= 32) {
+                            CompanionData.playerWallsBuilt = true;
+                            if (!CompanionData.playerWallsFinDialogue) {
+                                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have 100% finished the walls of the house!"), null);
+                                HumanCompanions.logger.severe("player_walls_finished_message");
+                                CompanionData.playerWallsFinDialogue = true;
+                            }
                         }
                     }
                 }
@@ -536,38 +686,68 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                     Level level = this.mob.level;
                     Block andesiteStone = Blocks.POLISHED_ANDESITE;
                     if (level.getBlockState(playerRoofCoordinates[roofCheckCounter]).is(andesiteStone)) {
-                        System.out.println((roofCheckCounter + 1) + " blocks complete!");
+//                        System.out.println((roofCheckCounter + 1) + " blocks complete!");
                         roofCheckCounter++;
+                        if (roofCheckCounter == 21) {
+                            if (!CompanionData.player21RoofFinDialogue) {
+                                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished 25% of the roof!"), null);
+                                HumanCompanions.logger.severe("player_roof_25_percent_finished_message");
+                                CompanionData.player21RoofFinDialogue = true;
+                            }
+                        }
+                        if (roofCheckCounter == 42) {
+                            if (!CompanionData.player42RoofFinDialogue) {
+                                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished 50% of the roof!"), null);
+                                HumanCompanions.logger.severe("player_roof_50_percent_finished_message");
+                                CompanionData.player42RoofFinDialogue = true;
+                            }
+                        }
+                        if (roofCheckCounter == 63) {
+                            if (!CompanionData.player63RoofFinDialogue) {
+                                AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished 75% of the roof!"), null);
+                                HumanCompanions.logger.severe("player_roof_75_percent_finished_message");
+                                CompanionData.player63RoofFinDialogue = true;
+                            }
+                        }
                     }
                     if (roofCheckCounter >= 84) {
                         CompanionData.playerRoofBuilt = true;
                         if (!CompanionData.playerRoofFinDialogue) {
-                            CompanionData.playerRoofCheck();
+                            AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have 100% finished the roof of the house!"), null);
+                            HumanCompanions.logger.severe("player_roof_finished_message");
                             CompanionData.playerRoofFinDialogue = true;
                         }
                     }
                 }
             }
-            if (CompanionData.playerWallsBuilt && CompanionData.playerRoofBuilt) {
+            if (!CompanionData.playerDoorPlaced) {
+                Level level = this.mob.level;
+                BlockPos playerDoorPos = new BlockPos(-294, 67, -279);
+                BlockPos playerDoorPos1 = new BlockPos(-293, 67, -279);
+                Block acaciaDoor = Blocks.ACACIA_DOOR;
+                System.out.println("blockstate of left door is: " + level.getBlockState(playerDoorPos));
+                if (level.getBlockState(playerDoorPos).is(acaciaDoor) && level.getBlockState(playerDoorPos1).is(acaciaDoor)) {
+//                        is(acaciaDoor)) {
+                    CompanionData.playerDoorPlaced = true;
+                    if (!CompanionData.playerDoorFinDialogue) {
+                        System.out.println("acacia door placed by player");
+                        AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have correctly placed the door of the house!"), null);
+                        HumanCompanions.logger.severe("player_door_finished_message");
+                        CompanionData.playerDoorFinDialogue = true;
+                    }
+                }
+            }
+
+            if (CompanionData.playerWallsBuilt && CompanionData.playerRoofBuilt && CompanionData.playerDoorPlaced) {
                 CompanionData.playersHalfBuilt = true;
                 if (!CompanionData.playerHalfFinDialogue) {
-                    CompanionData.playerHalfCheck();
+                    AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have 100% finished the house, well done!"), null);
                     CompanionData.playerHalfFinDialogue = true;
                 }
             }
         }
             ++this.ticksSinceReachedGoal;
         }
-    public void startCompDialogue() {
-        BlockPos questPos = new BlockPos(-314, 69, -253);
-        Level level = this.level;
-        Block blueOrchid = Blocks.BLUE_ORCHID;
-        if (!level.getBlockState(questPos).is(blueOrchid) && !CompanionData.interactionBegin) {
-            System.out.println("Quest Begin");
-            CompanionData.interactionBegin = true;
-            HumanCompanions.logger.severe("companion_interaction_start");
-        }
-    }
 
     @Nullable
     private BlockPos getPosWithBlock(BlockPos pPos, BlockGetter pLevel) {
@@ -585,46 +765,9 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             return null;
         }
     }
-
-    //old build function
-    public void buildHouse() {
-        Level level = this.mob.level;
-        BlockState blockstate = Blocks.ACACIA_PLANKS.defaultBlockState();
-        for (BlockPos pPos : compHouseCoordinates) {
-            if (CompanionData.numberOfWoodDestroyed > 10) {
-                level.setBlock(pPos, blockstate, 3);
-                level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, pPos);
-            }
-        }
-//        CompanionData.companionHalfWallsBuilt = true;
-    }
-    //old check function
-    public void checkCompletedHouse() {
-        BlockPos firstBrick = new BlockPos(-897, 77, -522);
-        Level level = this.mob.level;
-        Block acaciaWood = Blocks.ACACIA_PLANKS;
-        if (level.getBlockState(firstBrick).is(acaciaWood)) {
-            System.out.println("First block complete!");
-        }
-    }
-
     /**
      * Return true to set given position as destination
      */
-//    protected boolean isValidTarget(LevelReader pLevel, BlockPos pPos) {
-//        ChunkAccess chunkaccess = pLevel.getChunk(SectionPos.blockToSectionCoord(pPos.getX()), SectionPos.blockToSectionCoord(pPos.getZ()), ChunkStatus.FULL, false);
-//        if (chunkaccess == null) {
-//            return false;
-//        } else {
-//            return chunkaccess.getBlockState(pPos).is(this.blockToRemove)
-//                    && pPos.getY() > 69
-//                    && chunkaccess.getBlockState(pPos.east()).isAir()
-//                    && chunkaccess.getBlockState(pPos.west()).isAir()
-//                    && chunkaccess.getBlockState(pPos.south()).isAir()
-//                    && chunkaccess.getBlockState(pPos.north()).isAir();
-////            && chunkaccess.getBlockState(pPos.above()).isAir() && chunkaccess.getBlockState(pPos.above(2)).isAir();
-//        }
-//    }
     protected boolean isValidTarget(LevelReader pLevel, BlockPos pPos) {
         ChunkAccess chunkaccess = pLevel.getChunk(SectionPos.blockToSectionCoord(pPos.getX()), SectionPos.blockToSectionCoord(pPos.getZ()), ChunkStatus.FULL, false);
         if (chunkaccess == null) {

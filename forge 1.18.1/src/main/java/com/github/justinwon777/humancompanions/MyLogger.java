@@ -13,7 +13,7 @@ public class MyLogger {
 
     private static MyLogger instance;
 
-    private final String filename = "C:/Users/Emma/IdeaProjects/HumanCompanions/forge 1.18.1/run/logs/customLogs/log.log";
+    private String filename = "C:/Users/Emma/IdeaProjects/HumanCompanions/forge 1.18.1/run/logs/customLogs/";
     private final String loggerName = "MyLogger";
     private static Logger logger;
     private FileHandler fh;
@@ -22,6 +22,12 @@ public class MyLogger {
 
     private MyLogger() {
         logger = Logger.getLogger(loggerName);
+
+        Date date = new Date();
+        String timestamp2 = String.valueOf(date.getTime());
+
+        filename = filename + timestamp2 + ".log";
+
 
         sf = new SimpleFormatter();
         try {

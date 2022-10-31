@@ -86,9 +86,9 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
 
     public boolean canPickUpLoot;
     public Player player;
-    private static Player _player;
-//    private static Level level;
-//    private LevelSettings settings;
+    public static Player _player;
+
+    public static boolean tameTrigger = false;
     public EquipmentSlot[] armorTypes = new EquipmentSlot[]{EquipmentSlot.FEET, EquipmentSlot.LEGS,
             EquipmentSlot.CHEST, EquipmentSlot.HEAD};
     public List<NearestAttackableTargetGoal> alertMobGoals = new ArrayList<>();
@@ -130,7 +130,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
 
 
 
-        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.ACACIA_LOG, this, 1.5D, 24, blocksDestroyed, this.inventory, this.player, this.level));
+        this.goalSelector.addGoal(0, new CustomRemoveBlockGoal(Blocks.ACACIA_LOG, this, 1.25D, 24, this.inventory, this.player, this.level));
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(1, new EatGoal(this));
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
@@ -202,8 +202,6 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
         super.addAdditionalSaveData(tag);
         tag.put("inventory", this.inventory.createTag());
         tag.putInt("skin", this.getCompanionSkin());
-//        tag.putString("LevelName", this.levelSettings.levelName());
-//        System.out.println(" Level name is: " + this.settings.levelName());
         tag.putBoolean("Eating", this.isEating());
         tag.putBoolean("Alert", this.isAlert());
         tag.putBoolean("Hunting", this.isHunting());
@@ -220,7 +218,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
     public boolean canPickUpLoot() {
         return true;
     }
-    public int blocksDestroyed = 0;
+
     public void setCanPickUpLoot(boolean pCanPickup) {
         this.canPickUpLoot = pCanPickup;
     }
@@ -279,18 +277,13 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
             if (!this.isTame()) {
                 if (itemstack.isEdible()) {
                     itemstack.shrink(1);
+                    System.out.println("tame trigger = " + tameTrigger);
                     if (this.random.nextInt(tameIdx) == 0) {
+                        System.out.println("tame trigger = " + tameTrigger);
                         this.tame(player);
-                        player.sendMessage(new TextComponent("<Bob The Builder> Hi I'm Bob, and I am here to help you build a house"), this.getUUID());
-                        player.sendMessage(new TextComponent("<Bob The Builder> A house is needed to protect yourself from monsters at night"), this.getUUID());
-                        player.sendMessage(new TextComponent("<Bob The Builder> You need to first collect 10 pieces of acacia wood, then collect 30 pieces of stone"), this.getUUID());
-                        player.sendMessage(new TextComponent("<Bob The Builder> You must then craft that wood into 32 acacia planks"), this.getUUID());
-                        player.sendMessage(new TextComponent("<Bob The Builder> You will build half of house, and I will build the other, the outline is on the ground in purple"), this.getUUID());
-                        player.sendMessage(new TextComponent("<Bob The Builder> The walls should be two planks tall, with the stone roof one block above that covering the whole hours"), this.getUUID());
-                        player.sendMessage(new TextComponent("<Bob The Builder> Good luck! To see the instructions again simply press Enter"), this.getUUID());
-                        CompanionData.questBegin = true;
-                        HumanCompanions.logger.severe("quest begin message post quest beginning");
-                        System.out.println("quest begin equals: " + CompanionData.questBegin);
+                        tameTrigger = true;
+
+
                         setPatrolPos(null);
                         setPatrolling(false);
                         setFollowing(true);
@@ -304,9 +297,9 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
                         player.sendMessage(new TranslatableComponent("chat.type.text", this.getDisplayName(),
                                 CompanionData.tameFail[this.random.nextInt(CompanionData.tameFail.length)]), this.getUUID());
                     }
-                } else {
-                    player.sendMessage(new TranslatableComponent("chat.type.text", this.getDisplayName(),
-                            CompanionData.notTamed[this.random.nextInt(CompanionData.notTamed.length)]), this.getUUID());
+//                } else {
+//                    player.sendMessage(new TranslatableComponent("chat.type.text", this.getDisplayName(),
+//                            CompanionData.notTamed[this.random.nextInt(CompanionData.notTamed.length)]), this.getUUID());
                 }
             } else {
                 if(player.isShiftKeyDown()) {
@@ -591,4 +584,12 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
             this.targetSelector.removeGoal(huntMobGoals.get(i));
         }
     }
+//    player.sendMessage(new TextComponent("<Bob The Builder> Hi I'm Bob, and I am here to help you build a house"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Builder> A house is needed to protect yourself from monsters at night"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Builder> You need to first collect 10 pieces of acacia wood, then collect 84 pieces of andesite stone"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Builder> You must then craft that wood into 32 acacia planks and craft the stone into 84 polished stone"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Builder> You will build half of house, and I will build the other, the outline is on the ground in purple"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Builder> The walls should be two planks tall, with the stone roof one block above that covering the whole house"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Builder> After you place that you should place the doors on the blue tiles"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Builder> I'll keep you updated as you go along and let you know when you are finished"), this.getUUID());
 }
