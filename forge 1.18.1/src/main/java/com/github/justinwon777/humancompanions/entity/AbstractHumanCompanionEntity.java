@@ -141,7 +141,7 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
 //        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(8, new OpenDoorGoal(this, true));
-        this.goalSelector.addGoal(9, new LowHealthGoal(this));
+//        this.goalSelector.addGoal(9, new LowHealthGoal(this));
         this.targetSelector.addGoal(1, new CustomOwnerHurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new CustomOwnerHurtTargetGoal(this));
         this.targetSelector.addGoal(3, (new HurtByTargetGoal(this)).setAlertOthers());
@@ -584,12 +584,12 @@ public class AbstractHumanCompanionEntity extends TamableAnimal {
             this.targetSelector.removeGoal(huntMobGoals.get(i));
         }
     }
-//    player.sendMessage(new TextComponent("<Bob The Builder> Hi I'm Bob, and I am here to help you build a house"), this.getUUID());
-//    player.sendMessage(new TextComponent("<Bob The Builder> A house is needed to protect yourself from monsters at night"), this.getUUID());
-//    player.sendMessage(new TextComponent("<Bob The Builder> You need to first collect 10 pieces of acacia wood, then collect 84 pieces of andesite stone"), this.getUUID());
-//    player.sendMessage(new TextComponent("<Bob The Builder> You must then craft that wood into 32 acacia planks and craft the stone into 84 polished stone"), this.getUUID());
-//    player.sendMessage(new TextComponent("<Bob The Builder> You will build half of house, and I will build the other, the outline is on the ground in purple"), this.getUUID());
-//    player.sendMessage(new TextComponent("<Bob The Builder> The walls should be two planks tall, with the stone roof one block above that covering the whole house"), this.getUUID());
-//    player.sendMessage(new TextComponent("<Bob The Builder> After you place that you should place the doors on the blue tiles"), this.getUUID());
-//    player.sendMessage(new TextComponent("<Bob The Builder> I'll keep you updated as you go along and let you know when you are finished"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Arbalist> Hi I'm Bob, and I am here to help you build a house"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Arbalist> A house is needed to protect yourself from monsters at night"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Arbalist> You need to first collect 10 pieces of acacia wood, then collect 84 pieces of andesite stone"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Arbalist> You must then craft that wood into 32 acacia planks and craft the stone into 84 polished stone"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Arbalist> You will build half of house, and I will build the other, the outline is on the ground in purple"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Arbalist> The walls should be two planks tall, with the stone roof one block above that covering the whole house"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Arbalist> After you place that you should place the doors on the blue tiles"), this.getUUID());
+//    player.sendMessage(new TextComponent("<Bob The Arbalist> I'll keep you updated as you go along and let you know when you are finished"), this.getUUID());
 }

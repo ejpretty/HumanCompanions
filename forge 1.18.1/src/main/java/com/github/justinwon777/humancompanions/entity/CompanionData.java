@@ -164,11 +164,10 @@ public class CompanionData {
 
     public static TextComponent[] tameFail = new TextComponent[]{
             new TextComponent("I need more food."),
-            new TextComponent("Is that all you got?"),
             new TextComponent("I'm still hungry."),
             new TextComponent("Can I have some more?"),
             new TextComponent("I'm going to need a bit more."),
-            new TextComponent("That's not enough."),
+
     };
     public static TextComponent[] notTamed = new TextComponent[]{
             new TextComponent("Do you have any food?"),
@@ -263,7 +262,7 @@ public class CompanionData {
     };
 
     public static String[] lastNames = new String[] {
-            "the Builder"
+            "the Arbalist"
     };
     //Markers for quests starting/stopping
     public static int numberOfWoodDestroyed = 0;
