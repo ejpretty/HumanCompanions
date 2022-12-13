@@ -229,18 +229,16 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
             plRoofBlock80, plRoofBlock81, plRoofBlock82, plRoofBlock83, plRoofBlock84
     };
 
-
-
     BlockPos[] playerWallsCoordinates = {plFrontBlockBottom1, plFrontBlockTop1, plFrontBlockBottom2,plFrontBlockTop2, plFrontBlockBottom3, plFrontBlockTop3, plFrontBlockBottom4,
             plFrontBlockTop4, plFrontBlockBottom5, plFrontBlockTop5,
             plSideBlockBottom1, plSideBlockTop1, plSideBlockBottom2, plSideBlockTop2, plSideBlockBottom3, plSideBlockTop3, plSideBlockBottom4,
             plSideBlockTop4, plSideBlockBottom5, plSideBlockTop5,
             plBackBlockBottom1, plBackBlockTop1, plBackBlockBottom2, plBackBlockTop2, plBackBlockBottom3, plBackBlockTop3, plBackBlockBottom4,
             plBackBlockTop4, plBackBlockBottom5, plBackBlockTop5, plBackBlockBottom6, plBackBlockTop6};
-
+    //companion walls
     //front wall
-    BlockPos frontBlockBottom1 = new BlockPos(-902, 77, -522);
-    BlockPos frontBlockTop1 = new BlockPos(-902, 78, -522);
+//    BlockPos frontBlockBottom1 = new BlockPos(-902, 77, -522);
+//    BlockPos frontBlockTop1 = new BlockPos(-902, 78, -522);
     BlockPos frontBlockBottom2 = new BlockPos(-292, 67, -279);
     BlockPos frontBlockTop2 = new BlockPos(-292, 68, -279);
     BlockPos frontBlockBottom3 = new BlockPos(-291, 67, -279);
@@ -619,25 +617,13 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                 }
             }
 
-            //places door
+            //help message
             if (CompanionData.companionHalfWallsBuilt) {
                 if (!CompanionData.playerWallsHelpDialogue) {
                     AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> If you need anymore planks or stone, I have some spare!"), null);
                     HumanCompanions.logger.severe("companion_help_message");
                     CompanionData.playerWallsHelpDialogue = true;
                 }
-//                Level level = this.mob.level;
-//                BlockState door = Blocks.SPRUCE_DOOR.defaultBlockState();
-//                Block doorBlock = Blocks.SPRUCE_DOOR;
-//                BlockPos doorPos = new BlockPos(-293, 66, -280);
-//                if (level.getBlockState(doorPos).isAir()) {
-//                    level.setBlock(doorPos, door, 2);
-//                    level.gameEvent(this.mob, GameEvent.BLOCK_PLACE, doorPos);
-//                    if (level.getBlockState(doorPos).is(doorBlock)) {
-//                        CompanionData.compDoorPlaced = true;
-//                        HumanCompanions.logger.severe("companion_door_placed");
-//                    }
-//                }
             }
 
             //checks if player has finished walls
@@ -645,28 +631,32 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                 if (this.ticksSinceReachedGoal % 6 == 0) {
                     Level level = this.mob.level;
                     Block acaciaWood = Blocks.ACACIA_PLANKS;
-                    if (level.getBlockState(playerWallsCoordinates[wallCheckCounter]).is(acaciaWood)) {
+
+                    wallCheckCounter = 0;
+                    for (BlockPos i : playerWallsCoordinates) {
+                        if (level.getBlockState(i).is(acaciaWood)) {
 //                        System.out.println((wallCheckCounter + 1) + " blocks complete!");
                             wallCheckCounter++;
                             System.out.println("wall check counter is: " + wallCheckCounter);
                         }
                     }
+                }
 
-                        if (wallCheckCounter == 8) {
+                        if (wallCheckCounter >= 8) {
                             if (!CompanionData.player8WallsFinDialogue) {
                                 AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished 25% of the walls!"), null);
                                 HumanCompanions.logger.severe("player_walls_25_percent_finished_message");
                                 CompanionData.player8WallsFinDialogue = true;
                             }
                         }
-                        if (wallCheckCounter == 16) {
+                        if (wallCheckCounter >= 16) {
                             if (!CompanionData.player16WallsFinDialogue) {
                                 AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished 50% of the walls!"), null);
                                 HumanCompanions.logger.severe("player_walls_50_percent_finished_message");
                                 CompanionData.player16WallsFinDialogue = true;
                             }
                         }
-                        if (wallCheckCounter == 24) {
+                        if (wallCheckCounter >= 24) {
                             if (!CompanionData.player24WallsFinDialogue) {
                                 AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished 75% of the walls!"), null);
                                 HumanCompanions.logger.severe("player_walls_75_percent_finished_message");
@@ -690,25 +680,29 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                 if (this.ticksSinceReachedGoal % 6 == 0) {
                     Level level = this.mob.level;
                     Block andesiteStone = Blocks.POLISHED_ANDESITE;
-                    if (level.getBlockState(playerRoofCoordinates[roofCheckCounter]).is(andesiteStone)) {
+
+                    roofCheckCounter = 0;
+                    for (BlockPos e : playerRoofCoordinates) {
+                        if (level.getBlockState(e).is(andesiteStone)) {
 //                        System.out.println((roofCheckCounter + 1) + " blocks complete!");
-                        roofCheckCounter++;
+                            roofCheckCounter++;
+                        }
                     }
-                        if (roofCheckCounter == 21) {
+                        if (roofCheckCounter >= 21) {
                             if (!CompanionData.player21RoofFinDialogue) {
                                 AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished 25% of the roof!"), null);
                                 HumanCompanions.logger.severe("player_roof_25_percent_finished_message");
                                 CompanionData.player21RoofFinDialogue = true;
                             }
                         }
-                        if (roofCheckCounter == 42) {
+                        if (roofCheckCounter >= 42) {
                             if (!CompanionData.player42RoofFinDialogue) {
                                 AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished 50% of the roof!"), null);
                                 HumanCompanions.logger.severe("player_roof_50_percent_finished_message");
                                 CompanionData.player42RoofFinDialogue = true;
                             }
                         }
-                        if (roofCheckCounter == 63) {
+                        if (roofCheckCounter >= 63) {
                             if (!CompanionData.player63RoofFinDialogue) {
                                 AbstractHumanCompanionEntity.getPlayer().sendMessage(new TextComponent("<Bob The Builder> You have finished 75% of the roof!"), null);
                                 HumanCompanions.logger.severe("player_roof_75_percent_finished_message");
