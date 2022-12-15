@@ -3,14 +3,21 @@ package com.github.justinwon777.humancompanions.entity.ai;
 import com.github.justinwon777.humancompanions.HumanCompanions;
 import com.github.justinwon777.humancompanions.entity.AbstractHumanCompanionEntity;
 import com.github.justinwon777.humancompanions.entity.CompanionData;
+import com.github.justinwon777.humancompanions.sound.ModSounds;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
@@ -433,7 +440,11 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
         if (!CompanionData.tutorialInstructionsDialogue && !CompanionData.tutorialBegin) {
 //            System.out.println("!CompanionData.tutorialInstructionsDialogue && !CompanionData.tutorialBegin");
             BlockPos questPosTute = new BlockPos(52, -59, 148);
+
             Level level = this.level;
+//            if (Minecraft.getInstance().player != null) {
+//                BlockPos playerPosition = player.blockPosition();
+            Player player = this.player;
             Block blueOrchidTute = Blocks.BLUE_ORCHID;
 //            System.out.println("pre if (!level.getBlockState(questPos).is(blueOrchid))");
             if (!level.getBlockState(questPosTute).is(blueOrchidTute) && !CompanionData.tutorialInstructionsDialogue) {
@@ -441,8 +452,16 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                 if (talkTicks % 96 == 0) {
                     //((tutorialTextArray[tutorialTextCounter].length()) * 2)
                     System.out.println("String length *2: " + ((tutorialTextArray[tutorialTextCounter].length()) * 2));
-                    Minecraft.getInstance().player.chat((tutorialTextArray[tutorialTextCounter]));
                     HumanCompanions.logger.severe(tutorialTextArray[tutorialTextCounter]);
+                    Minecraft.getInstance().player.chat((tutorialTextArray[tutorialTextCounter]));
+                    System.out.println("player null?: " + Minecraft.getInstance().player);
+                    System.out.println("sound: " + ModSounds.DOWSING_ROD_FOUND_ORE.get());
+                    System.out.println("get level: " + Minecraft.getInstance().player.getLevel());
+                    System.out.println("get pos: " + Minecraft.getInstance().player.getOnPos());
+//                    Minecraft.getInstance().player.getLevel().playSound(null,  Minecraft.getInstance().player.getOnPos(), SoundEvents.ARROW_SHOOT, SoundSource.NEUTRAL, 1, 1);
+                    assert Minecraft.getInstance().level != null;
+                    Minecraft.getInstance().level.playLocalSound(questPosTute, ModSounds.DOWSING_ROD_FOUND_ORE.get(), SoundSource.BLOCKS, 1, 2, false);
+
                     tutorialTextCounter++;
                 }
                 if (tutorialTextCounter == 10) {
@@ -450,6 +469,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                     HumanCompanions.logger.severe("tutorial_instructions_finished");
                     System.out.println("Tutorial Begin");
                 }
+//            }
             }
         }
         //tutorial end text

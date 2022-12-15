@@ -2,5 +2,7 @@
   "entity.humancompanions.knight": "Knight",
   "entity.humancompanions.archer": "Archer",
   "entity.humancompanions.archer": "Arbalist",
-  "container.humancompanions.companion_inventory": "Companion Inventory"
+  "container.humancompanions.companion_inventory": "Companion Inventory",
+
+  "sounds.humancompanions.dowsing_rod_found_ore": "Dowsing Rod Found Item Sound"
 }

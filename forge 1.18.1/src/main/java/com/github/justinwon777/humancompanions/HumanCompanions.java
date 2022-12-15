@@ -1,6 +1,7 @@
 package com.github.justinwon777.humancompanions;
 
 import com.github.justinwon777.humancompanions.core.*;
+import com.github.justinwon777.humancompanions.sound.ModSounds;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
@@ -29,6 +30,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
@@ -62,10 +64,13 @@ public class HumanCompanions {
         PacketHandler.register();
         Config.register();
         eventBus.addListener(this::setup);
+        eventBus.addListener(this::clientSetup);
+        ModSounds.register(eventBus);
         logger.severe("participant_id: " + "p");
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(EventPriority.NORMAL, this::addDimensionalSpacing);
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     public void setup(final FMLCommonSetupEvent event) {
@@ -172,6 +177,9 @@ public class HumanCompanions {
                     StructureSettings.DEFAULTS.get(StructureInit.COMPANION_HOUSE.get()));
             worldStructureConfig.structureConfig = tempMap;
         }
+    }
+
+    private void clientSetup(final FMLClientSetupEvent event) {
     }
 
     /**
