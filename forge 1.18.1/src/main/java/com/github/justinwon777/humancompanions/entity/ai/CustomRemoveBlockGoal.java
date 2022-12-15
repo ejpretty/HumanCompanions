@@ -460,7 +460,7 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
                     System.out.println("get pos: " + Minecraft.getInstance().player.getOnPos());
 //                    Minecraft.getInstance().player.getLevel().playSound(null,  Minecraft.getInstance().player.getOnPos(), SoundEvents.ARROW_SHOOT, SoundSource.NEUTRAL, 1, 1);
                     assert Minecraft.getInstance().level != null;
-                    Minecraft.getInstance().level.playLocalSound(questPosTute, ModSounds.DOWSING_ROD_FOUND_ORE.get(), SoundSource.BLOCKS, 1, 2, false);
+                    Minecraft.getInstance().level.playLocalSound(questPosTute, ModSounds.DOWSING_ROD_FOUND_ORE.get(), SoundSource.BLOCKS, 1, 1, false);
 
                     tutorialTextCounter++;
                 }

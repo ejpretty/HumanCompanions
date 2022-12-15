@@ -2,7 +2,7 @@
   "dowsing_rod_found_ore": {
     "subtitle": "sounds.humancompanions.dowsing_rod_found_ore",
     "sounds": [
-      "HumanCompanions:dowsing_rod_found_ore"
+      "humancompanions:dowsing_rod_found_ore"
     ]
   }
 }
