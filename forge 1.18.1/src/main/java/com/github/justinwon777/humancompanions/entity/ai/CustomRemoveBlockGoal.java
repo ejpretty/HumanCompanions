@@ -411,14 +411,14 @@ public class CustomRemoveBlockGoal extends MoveToBlockGoal {
     String[] playerTextArray = {PlayerText1, PlayerText2, PlayerText3};
 
     String tutorialText1 = "<Instructions> Welcome to the tutorial!";
-    String tutorialText2 = "<Instructions> Take you time to look around and read the signs.";
+    String tutorialText2 = "<Instructions> Take your time to look around and read the signs.";
     String tutorialText3 = "<Instructions> You can use the mouse wheel to select the item you want in your character's hand.";
     String tutorialText4 = "<Instructions> Right click a chest or crafting table to use it.";
-    String tutorialText5 = "<Instructions> Open and close your characters inventory with E";
+    String tutorialText5 = "<Instructions> Open and close your character's inventory with E";
     String tutorialText6 = "<Instructions> Press space bar to jump.";
     String tutorialText7 = "<Instructions> When you have food in your hand, right click an animal to become friends with it.";
     String tutorialText8 = "<Instructions> When you have a block in your hand, right click to place the block.";
-    String tutorialText9 = "<Instructions> If you feel comfortable with the things you have learnt, please place a red flower from the chest on the grass block next to the trees.";
+    String tutorialText9 = "<Instructions> If you feel comfortable with the things you have learnt, please take a red flower from the chest and place it on the grass block next to the trees.";
     String tutorialText10 = "<Instructions> Good luck! To see the instructions again simply press /";
 
     String[] tutorialTextArray = {tutorialText1, tutorialText2, tutorialText3, tutorialText4, tutorialText5,
